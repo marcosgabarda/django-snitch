@@ -1,0 +1,48 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "snitch"
+author = "Marcos Gabarda"
+author-email = "hey@marcosgabarda.com"
+home-page = "https://github.com/marcosgabarda/django-snitch"
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "License :: OSI Approved :: MIT License",
+]
+requires = [
+    "django", "django-model-utils", "django-push-notifications", "bleach", "celery"
+ ]
+description-file = "README.rst"
+requires-python="3"
+
+[tool.flit.metadata.requires-extra]
+test = [
+    "pytest",
+    "pytest-django",
+    "pytest-cov",
+    "factory_boy",
+]
+doc = ["sphinx"]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+skipsdist=True
+envlist = py36,py37
+
+[testenv]
+deps =
+    django
+    django-model-utils
+    django-push-notifications
+    bleach
+    celery
+    pytest
+    pytest-django
+    pytest-cov
+    factory_boy
+commands = pytest
+"""

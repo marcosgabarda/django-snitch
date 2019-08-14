@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-model-utils = "*"
+django-push-notifications = "*"
+pytest = "*"
+pytest-cov = "*"
+sphinx = "*"
+pytest-django = "*"
+factory-boy = "*"
+bleach = "*"
+celery = "*"
+tox = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
