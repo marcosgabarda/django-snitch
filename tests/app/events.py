@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 
 import snitch
-from snitch.backends import NotificationPushBackend, NotificationEmailBackend
+from snitch.backends import PushNotificationBackend, EmailNotificationBackend
 
 ACTIVATED_EVENT = "activated"
 CONFIRMED_EVENT = "confirmed"
@@ -16,7 +16,7 @@ class ActivatedHandler(snitch.EventHandler):
 @snitch.register(CONFIRMED_EVENT)
 class ConfirmedHandler(snitch.EventHandler):
     title = "Confirmed!"
-    notification_backends = [NotificationPushBackend, NotificationEmailBackend]
+    notification_backends = [PushNotificationBackend, EmailNotificationBackend]
 
     # Custom configuration for email backend
     template_email_kwargs = {"template_name": "email.html"}

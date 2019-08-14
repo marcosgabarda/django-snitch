@@ -25,7 +25,7 @@ class AbstractBackend:
         raise NotImplementedError
 
 
-class NotificationPushBackend(AbstractBackend):
+class PushNotificationBackend(AbstractBackend):
     """A backend class to send push notifications depending on the platform."""
 
     def _send_android(self):
@@ -61,7 +61,7 @@ class NotificationPushBackend(AbstractBackend):
             self._send_ios()
 
 
-class NotificationEmailBackend(AbstractBackend):
+class EmailNotificationBackend(AbstractBackend):
     """Backend for using the email app to send emails."""
 
     def send(self):
@@ -84,6 +84,7 @@ class NotificationEmailBackend(AbstractBackend):
                 # Context
                 context = kwargs.get("context", {})
                 context.update({"notification": self.notification})
+                kwargs.update({"context": context})
                 # Sends email
                 email = TemplateEmailMessage(**kwargs)
                 email.send(
