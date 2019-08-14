@@ -5,6 +5,9 @@ Django Snitch
 .. image:: https://travis-ci.org/marcosgabarda/django-snitch.svg?branch=master
     :target: https://travis-ci.org/marcosgabarda/django-snitch
 
+.. image:: https://coveralls.io/repos/github/marcosgabarda/django-snitch/badge.svg?branch=master
+    :target: https://coveralls.io/github/marcosgabarda/django-snitch?branch=master
+
 Django app made to integrate generic events that create notifications that
 can be sent to users using several backends.
 
