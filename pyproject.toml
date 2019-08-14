@@ -3,6 +3,7 @@ requires = ["flit"]
 build-backend = "flit.buildapi"
 
 [tool.flit.metadata]
+dist-name = "django-snitch"
 module = "snitch"
 author = "Marcos Gabarda"
 author-email = "hey@marcosgabarda.com"
