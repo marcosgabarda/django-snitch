@@ -6,4 +6,6 @@ install:
   - pip install pipenv
   - pipenv install
 script:
-  - pytest
+  - pytest --cov snitch
+after_success:
+  - coveralls
