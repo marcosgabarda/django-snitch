@@ -169,4 +169,4 @@ class Notification(AbstractNotification):
     """Initial notification model that can be swappable."""
 
     class Meta(AbstractNotification.Meta):
-        swappable = "NOTIFICATION_MODEL"
+        swappable = "SNITCH_NOTIFICATION_MODEL"
