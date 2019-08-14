@@ -1,9 +1,14 @@
+"""Django app made to integrate generic events that create notifications that
+can be sent to users using several backends.
+
+By default, it integrates push notifications and email to send the
+notifications.
+"""
 from django.utils.module_loading import autodiscover_modules
 
 from snitch.decorators import register, dispatch
 from snitch.handlers import manager, EventHandler
 from snitch.helpers import explicit_dispatch, get_notification_model
-from snitch.settings import NOTIFICATION_MODEL
 
 
 __all__ = [
@@ -15,7 +20,7 @@ __all__ = [
     "get_notification_model",
 ]
 
-__version__ = "0.1"
+__version__ = "1.0"
 
 
 def autodiscover():

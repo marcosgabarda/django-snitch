@@ -15,6 +15,7 @@ factory-boy = "*"
 bleach = "*"
 celery = "*"
 tox = "*"
+flit = "*"
 
 [dev-packages]
 

@@ -16,7 +16,7 @@ requires = [
     "django", "django-model-utils", "django-push-notifications", "bleach", "celery"
  ]
 description-file = "README.rst"
-requires-python="3"
+requires-python=">=3.6"
 
 [tool.flit.metadata.requires-extra]
 test = [

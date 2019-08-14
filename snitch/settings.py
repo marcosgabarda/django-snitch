@@ -1,5 +1,11 @@
 from django.conf import settings
 
+# Needed to build and publish with Flit
+# ------------------------------------------------------------------------------
+SECRET_KEY = "snitch"
+
+# Specific project configuration
+# ------------------------------------------------------------------------------
 ENABLED_SEND_NOTIFICATIONS = getattr(
     settings, "SNITCH_ENABLED_SEND_NOTIFICATIONS", True
 )
