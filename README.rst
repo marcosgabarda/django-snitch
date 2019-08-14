@@ -14,6 +14,8 @@ can be sent to users using several backends.
 By default, it integrates **push notifications** and **email** to send the
 notifications.
 
+Made with Python 3 and Django with :heart:.
+
 Quick start
 -----------
 
@@ -86,3 +88,31 @@ Quick start
         def confirm(self):
             self.confirmed_at = timezone.now()
 
+
+Custom Notification model
+-------------------------
+
+You can, in the same way that ``django.contrib.auth.model.User`` works, swap the
+Notification model, to customize it.
+
+In order to do thar, you should create a model that inherits from
+``AbstractNotification``:
+
+.. code-block:: python
+
+    from django.db import models
+
+    from snitch.models import AbstractNotification
+
+
+    class Notification(AbstractNotification):
+        """Custom notification."""
+
+        extra_field = models.BooleanField(default=False)
+
+
+An after that, specify it in the settings:
+
+.. code-block:: python
+
+    SNITCH_NOTIFICATION_MODEL = "app.Notification"
