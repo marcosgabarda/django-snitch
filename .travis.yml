@@ -2,6 +2,8 @@ language: python
 python:
   - "3.6"
   - "3.7"
+env:
+  - DJANGO_SETTINGS_MODULE=tests.settings
 install:
   - pip install pipenv
   - pipenv install
