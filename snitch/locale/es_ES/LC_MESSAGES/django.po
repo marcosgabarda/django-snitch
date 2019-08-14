@@ -1,0 +1,119 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-08-14 16:55+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: snitch/admin.py:11
+msgid "Events notified!"
+msgstr "¡Eventos notificados!"
+
+#: snitch/admin.py:14
+msgid "Notify events"
+msgstr "Notificar eventos"
+
+#: snitch/admin.py:21
+msgid "Notifications sent!"
+msgstr "¡Notificaciones enviadas!"
+
+#: snitch/admin.py:24
+msgid "Send notifications"
+msgstr "Enviar notificaciones"
+
+#: snitch/apps.py:9
+msgid "Snitch"
+msgstr "Snitch"
+
+#: snitch/handlers.py:27
+msgid "The dispatch config is incorrect."
+msgstr "La configuración de envío es incorrecta."
+
+#: snitch/handlers.py:82
+#, python-brace-format
+msgid "The handler {handler} have to inherit from EventHandler."
+msgstr "El manejador {handler} ha de heredar de EventHandler."
+
+#: snitch/models.py:22
+msgid "enabled"
+msgstr "habilitado"
+
+#: snitch/models.py:25
+msgid "event type"
+msgstr "tipo de evento"
+
+#: snitch/models.py:26
+msgid "event types"
+msgstr "tipos de evento"
+
+#: snitch/models.py:50
+msgid "actor content type"
+msgstr "tipo de actor"
+
+#: snitch/models.py:52
+msgid "actor object id"
+msgstr "ID de actor"
+
+#: snitch/models.py:56
+msgid "verb"
+msgstr "verbo"
+
+#: snitch/models.py:65
+msgid "trigger content type"
+msgstr "tipo de disparador"
+
+#: snitch/models.py:68
+msgid "trigger object id"
+msgstr "ID de disparador"
+
+#: snitch/models.py:78
+msgid "target content type"
+msgstr "tipo de objetivo"
+
+#: snitch/models.py:81
+msgid "target object id"
+msgstr "ID de objetivo"
+
+#: snitch/models.py:85
+msgid "notified"
+msgstr "notificado"
+
+#: snitch/models.py:88 snitch/models.py:137
+msgid "event"
+msgstr "evento"
+
+#: snitch/models.py:89
+msgid "events"
+msgstr "eventos"
+
+#: snitch/models.py:144
+msgid "sent"
+msgstr "enviado"
+
+#: snitch/models.py:145
+msgid "received"
+msgstr "recibido"
+
+#: snitch/models.py:146
+msgid "read"
+msgstr "leído"
+
+#: snitch/models.py:149
+msgid "notification"
+msgstr "notificación"
+
+#: snitch/models.py:150
+msgid "notifications"
+msgstr "notificaciones"

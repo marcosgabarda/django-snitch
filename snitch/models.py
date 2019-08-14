@@ -43,12 +43,18 @@ class Event(TimeStampedModel):
     """
 
     actor_content_type = models.ForeignKey(
-        ContentType, related_name="actor_actions", null=True, on_delete=models.CASCADE
+        ContentType,
+        related_name="actor_actions",
+        null=True,
+        on_delete=models.CASCADE,
+        verbose_name=_("actor content type"),
     )
-    actor_object_id = models.PositiveIntegerField(null=True)
+    actor_object_id = models.PositiveIntegerField(_("actor object id"), null=True)
     actor = GenericForeignKey("actor_content_type", "actor_object_id")
 
-    verb = models.CharField(max_length=255, null=True, choices=manager.choices())
+    verb = models.CharField(
+        _("verb"), max_length=255, null=True, choices=manager.choices()
+    )
 
     trigger_content_type = models.ForeignKey(
         ContentType,
@@ -56,8 +62,11 @@ class Event(TimeStampedModel):
         blank=True,
         null=True,
         on_delete=models.CASCADE,
+        verbose_name=_("trigger content type"),
     )
-    trigger_object_id = models.PositiveIntegerField(blank=True, null=True)
+    trigger_object_id = models.PositiveIntegerField(
+        _("trigger object id"), blank=True, null=True
+    )
     trigger = GenericForeignKey("trigger_content_type", "trigger_object_id")
 
     target_content_type = models.ForeignKey(
@@ -66,11 +75,14 @@ class Event(TimeStampedModel):
         blank=True,
         null=True,
         on_delete=models.CASCADE,
+        verbose_name=_("target content type"),
     )
-    target_object_id = models.PositiveIntegerField(blank=True, null=True)
+    target_object_id = models.PositiveIntegerField(
+        _("target object id"), blank=True, null=True
+    )
     target = GenericForeignKey("target_content_type", "target_object_id")
 
-    notified = models.BooleanField(default=False)
+    notified = models.BooleanField(_("notified"), default=False)
 
     class Meta:
         verbose_name = _("event")
@@ -129,9 +141,9 @@ class AbstractNotification(TimeStampedModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="notifications", on_delete=models.CASCADE
     )
-    sent = models.BooleanField(default=False)
-    received = models.BooleanField(default=False)
-    read = models.BooleanField(default=False)
+    sent = models.BooleanField(_("sent"), default=False)
+    received = models.BooleanField(_("received"), default=False)
+    read = models.BooleanField(_("read"), default=False)
 
     class Meta:
         verbose_name = _("notification")

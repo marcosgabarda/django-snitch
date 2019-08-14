@@ -21,7 +21,7 @@ def send_action(modeladmin, request, queryset):
     modeladmin.message_user(request, _("Notifications sent!"))
 
 
-send_action.short_description = _("Send notification")
+send_action.short_description = _("Send notifications")
 
 
 @admin.register(EventType)
