@@ -19,4 +19,56 @@ Quick start
 
     INSTALLED_APPS += ('snitch',)
 
-**3** Create an `events.py` file
+**3** Create an ``events.py`` file in your app to register the events::
+
+    import snitch
+    from snitch.backends import NotificationPushBackend, NotificationEmailBackend
+
+    ACTIVATED_EVENT = "activated"
+    CONFIRMED_EVENT = "confirmed"
+
+
+    @snitch.register(ACTIVATED_EVENT)
+    class ActivatedHandler(snitch.EventHandler):
+        title = "Activated!"
+
+
+    @snitch.register(CONFIRMED_EVENT)
+    class ConfirmedHandler(snitch.EventHandler):
+        title = "Confirmed!"
+        notification_backends = [NotificationPushBackend, NotificationEmailBackend]
+
+        # Custom configuration for email backend
+        template_email_kwargs = {"template_name": "email.html"}
+        template_email_async = False
+
+        def audience(self):
+            return get_user_model().objects.all()
+
+
+**4** Use ``dispatch`` decorator to dispatch the event when a function is called::
+
+    from django.db import models
+    from django.utils import timezone
+
+    import snitch
+    from snitch.models import AbstractNotification
+    from tests.app.events import ACTIVATED_EVENT, CONFIRMED_EVENT
+
+
+    class Stuff(models.Model):
+        """Simple stuff model with status."""
+
+        IDLE, ACTIVE, CONFIRMED = 0, 1, 2
+        status = models.PositiveIntegerField(default=IDLE)
+        activated_at = models.DateTimeField(null=True, blank=True)
+        confirmed_at = models.DateTimeField(null=True, blank=True)
+
+        @snitch.dispatch(ACTIVATED_EVENT)
+        def activate(self):
+            self.activated_at = timezone.now()
+
+        @snitch.dispatch(CONFIRMED_EVENT)
+        def confirm(self):
+            self.confirmed_at = timezone.now()
+
