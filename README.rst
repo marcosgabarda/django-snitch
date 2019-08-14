@@ -11,15 +11,21 @@ notifications.
 Quick start
 -----------
 
-**1** Install using pip::
+**1** Install using pip:
 
-    $ pip install django-snitch
+.. code-block:: bash
 
-**2** Add "snitch" to your INSTALLED_APPS settings like this::
+    pip install django-snitch
+
+**2** Add "snitch" to your INSTALLED_APPS settings like this:
+
+.. code-block:: python
 
     INSTALLED_APPS += ('snitch',)
 
-**3** Create an ``events.py`` file in your app to register the events::
+**3** Create an ``events.py`` file in your app to register the events:
+
+.. code-block:: python
 
     import snitch
     from snitch.backends import NotificationPushBackend, NotificationEmailBackend
@@ -46,7 +52,9 @@ Quick start
             return get_user_model().objects.all()
 
 
-**4** Use ``dispatch`` decorator to dispatch the event when a function is called::
+**4** Use ``dispatch`` decorator to dispatch the event when a function is called:
+
+.. code-block:: python
 
     from django.db import models
     from django.utils import timezone
