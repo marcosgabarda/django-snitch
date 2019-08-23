@@ -23,7 +23,9 @@ def explicit_dispatch(verb, config=None, *args, **kwargs):
     """Helper to explicit dispatch an event without using a decorator."""
     from snitch.decorators import dispatch
 
-    return dispatch(verb, config)(lambda *args, **kwargs: None)(*args, **kwargs)
+    return dispatch(verb=verb, method=False, config=config)(
+        lambda *args, **kwargs: None
+    )(*args, **kwargs)
 
 
 def extract_actor_trigger_target(config, args, kwargs):

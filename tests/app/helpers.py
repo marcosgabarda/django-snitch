@@ -13,9 +13,9 @@ def dispatch_dummy_event(actor, trigger, target):
 
 def dispatch_explicit_dummy_event(actor, trigger, target):
     explicit_dispatch(
-        DUMMY_EVENT,
-        {"kwargs": {"actor": "actor", "trigger": "trigger", "target": "target"}},
-        actor,
-        trigger,
-        target,
+        verb=DUMMY_EVENT,
+        config={"kwargs": {"actor": "actor", "trigger": "trigger", "target": "target"}},
+        actor=actor,
+        trigger=trigger,
+        target=target,
     )
