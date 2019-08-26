@@ -78,8 +78,9 @@ class EmailNotificationBackend(AbstractBackend):
                     else None
                 )
                 if email:
+                    email_field_name = getattr(self.notification.user, "EMAIL_FIELD")
                     kwargs.update(
-                        {"to": getattr(self.notification.user, "EMAIL_FIELD")}
+                        {"to": getattr(self.notification.user, email_field_name)}
                     )
                 # Context
                 context = kwargs.get("context", {})
