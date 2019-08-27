@@ -6,7 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 def push_task(notification_pk):
     """A Celery task to send push notifications related with a given Notification
     model."""
-    from snitch.events import get_notification_model
+    from snitch.helpers import get_notification_model
 
     Notification = get_notification_model()
 
