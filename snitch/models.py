@@ -109,10 +109,15 @@ class Event(TimeStampedModel):
         handler = self.handler()
         return handler.get_title()
 
-    def action(self):
-        """Gets the action depending on the verb."""
+    def action_type(self):
+        """Gets the action type depending on the verb."""
         handler = self.handler()
-        return handler.get_action()
+        return handler.get_action_type()
+
+    def action_id(self):
+        """Gets the action id depending on the verb."""
+        handler = self.handler()
+        return handler.get_action_id()
 
     def notify(self):
         """Creates the notifications associated to this action, ."""

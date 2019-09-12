@@ -3,6 +3,16 @@
 History
 -------
 
+1.1.1 (2019-9-12)
++++++++++++++++++
+
+* Added method to get the devices in the push backend.
+
+1.1.0 (2019-9-12)
++++++++++++++++++
+
+* Change the action info send in push notifications.
+
 1.0.4 (2019-8-27)
 +++++++++++++++++
 

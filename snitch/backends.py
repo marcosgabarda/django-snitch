@@ -18,7 +18,8 @@ class AbstractBackend:
         self.notification = notification
         self.title = self.notification.event.title()
         self.text = self.notification.event.text()
-        self.action = self.notification.event.action()
+        self.action_type = self.notification.event.action_type()
+        self.action_id = self.notification.event.action_id()
 
     def send(self):
         """A subclass should to implement the send method."""
@@ -28,37 +29,53 @@ class AbstractBackend:
 class PushNotificationBackend(AbstractBackend):
     """A backend class to send push notifications depending on the platform."""
 
-    def _send_android(self):
-        devices = GCMDevice.objects.filter(user=self.notification.user)
+    def extra_data(self):
+        """Gets the extra data to add to the push, to be hooked if needed."""
+        return {}
+
+    def _get_devices(self, device_class):
+        """Gets the devices using the given class."""
+        return device_class.objects.filter(user=self.notification.user)
+
+    def _send_gcm(self):
+        devices = self._get_devices(GCMDevice)
         message = self.text
         extra = {}
         if self.title:
             extra["title"] = self.title
-        if self.action:
-            extra["click_action"] = self.action
+        if self.action_type:
+            extra["action_type"] = self.action_type
+        if self.action_id:
+            extra["action_id"] = self.action_id
+        if self.extra_data():
+            extra.update(self.extra_data())
         try:
             devices.send_message(message=message, extra=extra)
         except GCMError:
-            logger.warning("Error sending push message")
+            logger.warning("Error sending GCM push message")
 
-    def _send_ios(self):
-        devices = APNSDevice.objects.filter(user=self.notification.user)
+    def _send_apns(self):
+        devices = self._get_devices(APNSDevice)
         message = self.text
         extra = {}
         if self.title:
             message = {"title": self.title, "body": self.text}
-        if self.action:
-            extra["click_action"] = self.action
+        if self.action_type:
+            extra["action_type"] = self.action_type
+        if self.action_id:
+            extra["action_id"] = self.action_id
+        if self.extra_data():
+            extra.update(self.extra_data())
         try:
             devices.send_message(message=message, extra=extra)
         except GCMError:
-            logger.warning("Error sending push message")
+            logger.warning("Error sending APNS push message")
 
     def send(self):
         """Send message for each platform."""
         if ENABLED_SEND_NOTIFICATIONS:
-            self._send_android()
-            self._send_ios()
+            self._send_gcm()
+            self._send_apns()
 
 
 class EmailNotificationBackend(AbstractBackend):

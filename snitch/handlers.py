@@ -11,7 +11,8 @@ class EventHandler:
     should_notify = True
     should_send = True
     dispatch_config = {"args": ("actor", "trigger", "target")}
-    action = None
+    action_type = None
+    action_id = None
     title = None
     text = None
     notification_backends = []
@@ -49,9 +50,13 @@ class EventHandler:
         """Gets the title for the event. To be hooked."""
         return self.title
 
-    def get_action(self):
+    def get_action_type(self):
+        """Gets the action type depending on the verb. To be hooked."""
+        return self.action_type
+
+    def get_action_id(self):
         """Gets the action depending on the verb. To be hooked."""
-        return self.action
+        return self.action_id
 
     def audience(self):
         """Gets the audience of the event. None by default, to be hooked by the user."""
