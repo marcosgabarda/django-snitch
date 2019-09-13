@@ -3,6 +3,11 @@
 History
 -------
 
+1.2.0 (2019-9-13)
++++++++++++++++++
+
+* Added extra context and custom subject to email backend.
+
 1.1.1 (2019-9-12)
 +++++++++++++++++
 

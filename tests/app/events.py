@@ -25,6 +25,12 @@ class ConfirmedHandler(snitch.EventHandler):
     def audience(self):
         return get_user_model().objects.all()
 
+    def get_email_subject(self):
+        return "Subject"
+
+    def get_email_extra_context(self):
+        return {"user": 1}
+
 
 @snitch.register(DUMMY_EVENT)
 class DummyHandler(snitch.EventHandler):

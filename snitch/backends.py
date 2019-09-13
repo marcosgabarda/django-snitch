@@ -81,13 +81,31 @@ class PushNotificationBackend(AbstractBackend):
 class EmailNotificationBackend(AbstractBackend):
     """Backend for using the email app to send emails."""
 
+    template_email_kwargs_attr = "template_email_kwargs"
+    get_email_extra_context_attr = "get_email_extra_context"
+    get_email_subject_attr = "get_email_subject"
+
+    def extra_context(self):
+        """Gets extra context to the email if there is a method in the handler."""
+        handler = self.notification.event.handler()
+        if hasattr(handler, self.get_email_extra_context_attr):
+            return getattr(handler, self.get_email_extra_context_attr)()
+        return {}
+
+    def subject(self):
+        """Gets subject of the email if there is a method in the handler."""
+        handler = self.notification.event.handler()
+        if hasattr(handler, self.get_email_subject_attr):
+            return getattr(handler, self.get_email_subject_attr)()
+        return None
+
     def send(self):
         """Sends the email."""
         if ENABLED_SEND_NOTIFICATIONS:
             # Gets the handler to extract the arguments from template_email_kwargs
             handler = self.notification.event.handler()
-            if hasattr(handler, "template_email_kwargs"):
-                kwargs = handler.template_email_kwargs
+            if hasattr(handler, self.template_email_kwargs_attr):
+                kwargs = getattr(handler, self.template_email_kwargs_attr)
                 # Gets to email
                 email = (
                     getattr(User, "EMAIL_FIELD")
@@ -99,9 +117,14 @@ class EmailNotificationBackend(AbstractBackend):
                     kwargs.update(
                         {"to": getattr(self.notification.user, email_field_name)}
                     )
+                # Override subject
+                subject = self.subject()
+                if subject:
+                    kwargs["subject"] = subject
                 # Context
                 context = kwargs.get("context", {})
                 context.update({"notification": self.notification})
+                context.update(self.extra_context())
                 kwargs.update({"context": context})
                 # Sends email
                 email = TemplateEmailMessage(**kwargs)
