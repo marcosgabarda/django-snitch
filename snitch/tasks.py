@@ -14,7 +14,7 @@ def push_task(notification_pk):
         notification = Notification.objects.get(pk=notification_pk)
     except Notification.DoesNotExist:
         return False
-    notification.push(send_async=False)
+    notification.send(send_async=False)
 
 
 @task(serializer="json")
