@@ -1,7 +1,9 @@
+from typing import Optional, Callable, Dict
+
 from snitch.helpers import extract_actor_trigger_target
 
 
-def register(verb, verbose=None):
+def register(verb: str, verbose: Optional[str] = None) -> Callable:
     """Decorator to register an event with its handler.
 
     @events.register("verb", _("verb verbose"))
@@ -18,7 +20,9 @@ def register(verb, verbose=None):
     return _event_handler_wrapper
 
 
-def dispatch(verb, method=False, config=None):
+def dispatch(
+    verb: str, method: bool = False, config: Optional[Dict] = None
+) -> Callable:
     """Decorator to dispatch an event when a method or function is called.
 
     The arguments attribute if to configure how to extract the actor, trigger and
@@ -41,7 +45,7 @@ def dispatch(verb, method=False, config=None):
     from snitch.models import Event, EventType
     from snitch.handlers import manager
 
-    def _decorator(func):
+    def _decorator(func: Callable):
         """Decorator itself."""
 
         def _wrapper_trigger_action(*args, **kwargs):

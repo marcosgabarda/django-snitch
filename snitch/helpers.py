@@ -1,3 +1,5 @@
+from typing import Dict, Optional, Any, Tuple
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 
@@ -19,7 +21,7 @@ def get_notification_model():
         )
 
 
-def explicit_dispatch(verb, config=None, *args, **kwargs):
+def explicit_dispatch(verb: str, config: Optional[Dict] = None, *args, **kwargs) -> Any:
     """Helper to explicit dispatch an event without using a decorator."""
     from snitch.decorators import dispatch
 
@@ -28,7 +30,7 @@ def explicit_dispatch(verb, config=None, *args, **kwargs):
     )(*args, **kwargs)
 
 
-def extract_actor_trigger_target(config, args, kwargs):
+def extract_actor_trigger_target(config: Dict, args: Tuple, kwargs: Dict) -> Tuple:
     """Extracts the actor, trigger and target using the arguments config given from
     the generic arguments args and kwargs.
     """

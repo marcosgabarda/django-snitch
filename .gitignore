@@ -53,6 +53,8 @@ htmlcov
 *.swp
 *.swo
 
+# mypy
+.mypy_cache/
 
 # virtual environments
 .env

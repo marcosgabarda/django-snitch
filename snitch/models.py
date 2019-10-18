@@ -1,3 +1,5 @@
+from typing import Dict
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -6,6 +8,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
+from snitch import EventHandler
 from snitch.handlers import manager
 
 User = get_user_model()
@@ -159,14 +162,25 @@ class AbstractNotification(TimeStampedModel):
     def __str__(self):
         return "'{}' to {}".format(str(self.event), str(self.user))
 
-    def send(self, send_async=False):
-        """Sends a push notification to the devices of the user."""
-        from .tasks import push_task
+    def _task_kwargs(self, handler: EventHandler) -> Dict:
+        """Gets the kwargs for celery task, used in apply_async method."""
+        kwargs = {}
+        # Delay from event handler
+        delay = handler.get_delay()
+        if delay:
+            kwargs["countdown"] = delay
+        return kwargs
 
-        handler = self.event.handler()
+    def send(self, send_async: bool = False):
+        """Sends a push notification to the devices of the user."""
+        from .tasks import send_notification_task
+
+        handler: EventHandler = self.event.handler()
         if handler.should_send:
             if send_async:
-                push_task.delay(self.pk)
+                send_notification_task.apply_async(
+                    (self.pk,), **self._task_kwargs(handler)
+                )
             else:
                 for backend_class in handler.notification_backends:
                     backend = backend_class(self)

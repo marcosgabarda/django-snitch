@@ -35,3 +35,4 @@ class ConfirmedHandler(snitch.EventHandler):
 @snitch.register(DUMMY_EVENT)
 class DummyHandler(snitch.EventHandler):
     title = "Dummy event"
+    delay = 60

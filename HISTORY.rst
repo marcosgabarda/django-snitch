@@ -3,6 +3,12 @@
 History
 -------
 
+1.3.0 (2019-10-18)
++++++++++++++++++
+
+* Added delay for notifications
+* Starting to use type hints
+
 1.2.1 (2019-9-17)
 +++++++++++++++++
 

@@ -1,4 +1,5 @@
 import warnings
+from typing import Optional, Dict, List, Union
 
 import bleach
 from django.conf import settings
@@ -10,7 +11,7 @@ from snitch.settings import ENABLED_SEND_NOTIFICATIONS
 from snitch.tasks import send_email_asynchronously
 
 
-class TemplateEmailMessage(object):
+class TemplateEmailMessage:
     """An object to handle emails based on templates, with automatic plain
     alternatives.
     """
@@ -22,12 +23,12 @@ class TemplateEmailMessage(object):
 
     def __init__(
         self,
-        to,
-        subject=None,
-        context=None,
-        from_email=None,
-        attaches=None,
-        template_name=None,
+        to: Union[str, List],
+        subject: Optional[str] = None,
+        context: Optional[Dict] = None,
+        from_email: Optional[str] = None,
+        attaches: Optional[List] = None,
+        template_name: Optional[str] = None,
     ):
         self.template_name = (
             self.default_template_name if template_name is None else template_name
@@ -41,14 +42,14 @@ class TemplateEmailMessage(object):
         self.attaches = [] if attaches is None else attaches
         self.default_context = {} if context is None else context
 
-    def get_context(self):
+    def get_context(self) -> Dict:
         """Hook to customize context."""
         # Add default context
         current_site = Site.objects.get_current()
         self.default_context.update({"site": current_site})
         return self.default_context
 
-    def preview(self):
+    def preview(self) -> str:
         """Renders the message for a preview."""
         context = self.get_context()
         message = render_to_string(self.template_name, context, using="django")
@@ -79,7 +80,7 @@ class TemplateEmailMessage(object):
                 email.attach(attach_file_name, attach_content, attach_content_type)
             email.send()
 
-    def send(self, use_async=True):
+    def send(self, use_async: bool = True):
         """Sends the email at the moment or using a Celery task."""
         if not ENABLED_SEND_NOTIFICATIONS:
             return
@@ -98,14 +99,18 @@ class TemplateEmailMessage(object):
 class AdminsTemplateEmailMessage(TemplateEmailMessage):
     """Emails only for admins."""
 
-    def __init__(self, subject=None, context=None, from_email=None):
-        to = [a[1] for a in settings.ADMINS]
+    def __init__(
+        self, subject: str = None, context: Dict = None, from_email: str = None
+    ):
+        to: Union[str, List] = [a[1] for a in settings.ADMINS]
         super().__init__(to, subject=subject, context=context, from_email=from_email)
 
 
 class ManagersTemplateEmailMessage(TemplateEmailMessage):
     """Emails only for mangers."""
 
-    def __init__(self, subject=None, context=None, from_email=None):
-        to = [m[1] for m in settings.MANAGERS]
+    def __init__(
+        self, subject: str = None, context: Dict = None, from_email: str = None
+    ):
+        to: Union[str, List] = [m[1] for m in settings.MANAGERS]
         super().__init__(to, subject=subject, context=context, from_email=from_email)

@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, Union, Type, Optional
 
 from django.contrib.auth import get_user_model
 from push_notifications.gcm import GCMError
@@ -14,12 +15,12 @@ User = get_user_model()
 class AbstractBackend:
     """Abstract backend class for notifications."""
 
-    def __init__(self, notification):
-        self.notification = notification
-        self.title = self.notification.event.title()
-        self.text = self.notification.event.text()
-        self.action_type = self.notification.event.action_type()
-        self.action_id = self.notification.event.action_id()
+    def __init__(self, notification: "Notification"):
+        self.notification: "Notification" = notification
+        self.title: str = self.notification.event.title()
+        self.text: str = self.notification.event.text()
+        self.action_type: str = self.notification.event.action_type()
+        self.action_id: str = self.notification.event.action_id()
 
     def send(self):
         """A subclass should to implement the send method."""
@@ -29,11 +30,13 @@ class AbstractBackend:
 class PushNotificationBackend(AbstractBackend):
     """A backend class to send push notifications depending on the platform."""
 
-    def extra_data(self):
+    def extra_data(self) -> Dict:
         """Gets the extra data to add to the push, to be hooked if needed."""
         return {}
 
-    def _get_devices(self, device_class):
+    def _get_devices(
+        self, device_class: Union[Type[GCMDevice], Type[APNSDevice]]
+    ) -> "QuerySet":
         """Gets the devices using the given class."""
         return device_class.objects.filter(user=self.notification.user)
 
@@ -81,18 +84,18 @@ class PushNotificationBackend(AbstractBackend):
 class EmailNotificationBackend(AbstractBackend):
     """Backend for using the email app to send emails."""
 
-    template_email_kwargs_attr = "template_email_kwargs"
-    get_email_extra_context_attr = "get_email_extra_context"
-    get_email_subject_attr = "get_email_subject"
+    template_email_kwargs_attr: str = "template_email_kwargs"
+    get_email_extra_context_attr: str = "get_email_extra_context"
+    get_email_subject_attr: str = "get_email_subject"
 
-    def extra_context(self):
+    def extra_context(self) -> Dict:
         """Gets extra context to the email if there is a method in the handler."""
         handler = self.notification.event.handler()
         if hasattr(handler, self.get_email_extra_context_attr):
             return getattr(handler, self.get_email_extra_context_attr)()
         return {}
 
-    def subject(self):
+    def subject(self) -> Optional[str]:
         """Gets subject of the email if there is a method in the handler."""
         handler = self.notification.event.handler()
         if hasattr(handler, self.get_email_subject_attr):
