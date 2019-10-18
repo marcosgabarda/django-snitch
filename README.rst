@@ -95,7 +95,7 @@ Custom Notification model
 You can, in the same way that ``django.contrib.auth.model.User`` works, swap the
 Notification model, to customize it.
 
-In order to do thar, you should create a model that inherits from
+In order to do that, you should create a model that inherits from
 ``AbstractNotification``:
 
 .. code-block:: python
@@ -111,7 +111,7 @@ In order to do thar, you should create a model that inherits from
         extra_field = models.BooleanField(default=False)
 
 
-An after that, specify it in the settings:
+And after that, specify it in the settings:
 
 .. code-block:: python
 
