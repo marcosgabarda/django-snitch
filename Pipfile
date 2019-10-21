@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = "<3.0"
 django-model-utils = "*"
 django-push-notifications = "*"
 pytest = "*"
@@ -19,10 +19,8 @@ flit = "*"
 
 [dev-packages]
 mypy = "*"
-black = "*"
+black = "==19.3b0"
 
 [requires]
 python_version = "3.7"
 
-[pipenv]
-allow_prereleases = true
