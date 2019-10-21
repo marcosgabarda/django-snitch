@@ -1,1 +1,3 @@
-DEFAULT_CONFIG = {"kwargs": {"actor": "actor", "trigger": "trigger", "target": "target"}}
+DEFAULT_CONFIG = {
+    "kwargs": {"actor": "actor", "trigger": "trigger", "target": "target"}
+}

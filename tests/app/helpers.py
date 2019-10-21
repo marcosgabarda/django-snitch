@@ -4,10 +4,7 @@ from snitch.constants import DEFAULT_CONFIG
 from tests.app.events import DUMMY_EVENT
 
 
-@snitch.dispatch(
-    DUMMY_EVENT,
-    config=DEFAULT_CONFIG,
-)
+@snitch.dispatch(DUMMY_EVENT, config=DEFAULT_CONFIG)
 def dispatch_dummy_event(actor, trigger, target):
     pass
 
