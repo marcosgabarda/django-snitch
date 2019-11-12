@@ -1,3 +1,5 @@
+import io
+
 from django.contrib.auth import get_user_model
 
 import snitch
@@ -38,7 +40,10 @@ class ConfirmedHandler(snitch.EventHandler):
         return {"user": 1}
 
     def get_email_kwargs_attr(self):
-        return self.template_email_kwargs
+        return {
+            "template_name": "email.html",
+            "attaches": [("dummy.txt", io.StringIO("dummy"), "text/plain")],
+        }
 
 
 @snitch.register(DUMMY_EVENT)

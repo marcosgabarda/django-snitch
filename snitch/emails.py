@@ -84,6 +84,7 @@ class TemplateEmailMessage:
         """Sends the email at the moment or using a Celery task."""
         if not ENABLED_SEND_NOTIFICATIONS:
             return
+        use_async = not self.attaches and use_async
         context = self.get_context()
         message = render_to_string(self.template_name, context, using="django")
         message_txt = message.replace("\n", "")

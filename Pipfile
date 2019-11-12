@@ -20,7 +20,6 @@ flit = "*"
 [dev-packages]
 mypy = "*"
 black = "==19.3b0"
-pipenv = "*"
 
 [requires]
 python_version = "3.7"

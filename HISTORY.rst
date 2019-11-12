@@ -7,6 +7,7 @@ History
 +++++++++++++++++
 
 * Added ``get_email_kwargs_attr`` function to handler to dynamical set the values of kwargs for email.
+* Can't use async when there is an attachment.
 
 1.3.0 (2019-10-18)
 +++++++++++++++++

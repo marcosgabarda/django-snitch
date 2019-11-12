@@ -89,6 +89,15 @@ class EmailNotificationBackend(AbstractBackend):
     get_email_extra_context_attr: str = "get_email_extra_context"
     get_email_subject_attr: str = "get_email_subject"
 
+    def __use_async(self) -> bool:
+        """Check if the email can use async."""
+        handler = self.notification.event.handler()
+        return (
+            handler.template_email_async
+            if hasattr(handler, "template_email_async")
+            else True
+        )
+
     def extra_context(self) -> Dict:
         """Gets extra context to the email if there is a method in the handler."""
         handler = self.notification.event.handler()
@@ -142,8 +151,4 @@ class EmailNotificationBackend(AbstractBackend):
                 kwargs.update({"context": context})
                 # Sends email
                 email = TemplateEmailMessage(**kwargs)
-                email.send(
-                    use_async=handler.template_email_async
-                    if hasattr(handler, "template_email_async")
-                    else True
-                )
+                email.send(use_async=self.__use_async())
