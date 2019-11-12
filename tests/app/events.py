@@ -12,6 +12,12 @@ DUMMY_EVENT = "dummy"
 class ActivatedHandler(snitch.EventHandler):
     title = "Activated!"
 
+    notification_backends = [PushNotificationBackend, EmailNotificationBackend]
+
+    # Custom configuration for email backend
+    template_email_kwargs = {"template_name": "email.html"}
+    template_email_async = False
+
 
 @snitch.register(CONFIRMED_EVENT)
 class ConfirmedHandler(snitch.EventHandler):
@@ -30,6 +36,9 @@ class ConfirmedHandler(snitch.EventHandler):
 
     def get_email_extra_context(self):
         return {"user": 1}
+
+    def get_email_kwargs_attr(self):
+        return self.template_email_kwargs
 
 
 @snitch.register(DUMMY_EVENT)

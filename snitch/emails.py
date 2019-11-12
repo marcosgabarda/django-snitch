@@ -16,10 +16,10 @@ class TemplateEmailMessage:
     alternatives.
     """
 
-    default_template_name = ""
-    default_subject = ""
-    default_from_email = ""
-    fake = False
+    default_template_name: str = ""
+    default_subject: str = ""
+    default_from_email: str = ""
+    fake: bool = False
 
     def __init__(
         self,

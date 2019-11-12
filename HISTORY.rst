@@ -3,16 +3,21 @@
 History
 -------
 
+1.3.1 (2019-11-12)
++++++++++++++++++
+
+* Added ``get_email_kwargs_attr`` function to handler to dynamical set the values of kwargs for email.
+
 1.3.0 (2019-10-18)
 +++++++++++++++++
 
-* Added delay for notifications
-* Starting to use type hints
+* Added delay for notifications.
+* Starting to use type hints.
 
 1.2.1 (2019-9-17)
 +++++++++++++++++
 
-* Fixed notification send task
+* Fixed notification send task.
 
 1.2.0 (2019-9-13)
 +++++++++++++++++

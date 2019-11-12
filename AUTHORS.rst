@@ -11,3 +11,4 @@ Collaborators
 -------------
 
 * Iván Martín <@seik>
+* Victor Borràs <@vborras>

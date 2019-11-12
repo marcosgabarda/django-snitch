@@ -85,6 +85,7 @@ class EmailNotificationBackend(AbstractBackend):
     """Backend for using the email app to send emails."""
 
     template_email_kwargs_attr: str = "template_email_kwargs"
+    get_email_kwargs_attr: str = "get_email_kwargs_attr"
     get_email_extra_context_attr: str = "get_email_extra_context"
     get_email_subject_attr: str = "get_email_subject"
 
@@ -102,13 +103,23 @@ class EmailNotificationBackend(AbstractBackend):
             return getattr(handler, self.get_email_subject_attr)()
         return None
 
+    def email_kwargs(self) -> Optional[dict]:
+        """Dynamically gets the kwargs for TemplateEmailMessage"""
+        handler = self.notification.event.handler()
+        kwargs = None
+        if hasattr(handler, self.get_email_kwargs_attr):
+            kwargs = getattr(handler, self.get_email_kwargs_attr)()
+        elif hasattr(handler, self.template_email_kwargs_attr):
+            kwargs = getattr(handler, self.template_email_kwargs_attr)
+        return kwargs
+
     def send(self):
         """Sends the email."""
         if ENABLED_SEND_NOTIFICATIONS:
             # Gets the handler to extract the arguments from template_email_kwargs
             handler = self.notification.event.handler()
-            if hasattr(handler, self.template_email_kwargs_attr):
-                kwargs = getattr(handler, self.template_email_kwargs_attr)
+            kwargs = self.email_kwargs()
+            if kwargs:
                 # Gets to email
                 email = (
                     getattr(User, "EMAIL_FIELD")
