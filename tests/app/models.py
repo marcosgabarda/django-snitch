@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from model_utils.models import TimeStampedModel
 
 import snitch
 from snitch.models import AbstractNotification
@@ -43,5 +44,11 @@ class Trigger(models.Model):
 
 class Target(models.Model):
     """Dummy target."""
+
+    pass
+
+
+class OtherStuff(TimeStampedModel):
+    """Other stuff."""
 
     pass

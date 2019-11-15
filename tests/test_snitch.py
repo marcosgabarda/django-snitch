@@ -1,7 +1,12 @@
+import locale
+
 from django.test import TestCase
+from django_celery_beat.models import DAYS
 
 import snitch
 from snitch.models import Event
+from snitch.schedules.models import Schedule
+from snitch.schedules.tasks import execute_schedule_task, clean_scheduled_tasks
 from tests.app.events import (
     ACTIVATED_EVENT,
     ActivatedHandler,
@@ -9,12 +14,14 @@ from tests.app.events import (
     DummyHandler,
     CONFIRMED_EVENT,
     ConfirmedHandler,
+    EVERY_HOUR,
 )
 from tests.app.factories import (
     StuffFactory,
     ActorFactory,
     TargetFactory,
     TriggerFactory,
+    OtherStuffFactory,
 )
 from tests.app.helpers import dispatch_dummy_event, dispatch_explicit_dummy_event
 from tests.app.models import Notification
@@ -81,3 +88,57 @@ class SnitchTestCase(TestCase):
         self.assertEqual(0, Event.objects.filter(verb=DUMMY_EVENT).count())
         dispatch_dummy_event(ActorFactory(), TargetFactory(), TriggerFactory())
         self.assertEqual(0, Event.objects.filter(verb=DUMMY_EVENT).count())
+
+    def test_create_other_stuff(self):
+        schedules = Schedule.objects.all().count()
+        self.assertEqual(0, schedules)
+        OtherStuffFactory()
+        self.assertEqual(1, Schedule.objects.filter(verb=DUMMY_EVENT).count())
+        self.assertTrue(Schedule.objects.filter(verb=DUMMY_EVENT).exists())
+        schedule = Schedule.objects.filter(verb=DUMMY_EVENT).first()
+        self.assertEqual(DAYS, schedule.period)
+        self.assertEqual(2, schedule.every)
+        self.assertEqual(1, schedule.limit)
+
+    def test_create_other_stuff_every_hour(self):
+        schedules = Schedule.objects.all().count()
+        self.assertEqual(0, schedules)
+        other_stuff = OtherStuffFactory()
+        self.assertEqual(1, Schedule.objects.filter(verb=EVERY_HOUR).count())
+        self.assertTrue(Schedule.objects.filter(verb=EVERY_HOUR).exists())
+        schedule = Schedule.objects.filter(verb=EVERY_HOUR).first()
+        self.assertEqual(str(other_stuff.created.minute), schedule.minute)
+        self.assertEqual("*/1", schedule.hour)
+        locale.setlocale(locale.LC_ALL, "en_US")
+        self.assertIn(
+            schedule.human_frequency(),
+            [
+                f"at {schedule.minute} minutes past the hour",
+                f"at {schedule.minute} minute past the hour",
+            ],
+        )
+
+    def test_execute_schedule_task(self):
+        OtherStuffFactory()
+        schedule = Schedule.objects.filter(verb=DUMMY_EVENT).first()
+        self.assertEqual(0, schedule.counter)
+        schedule_pk = execute_schedule_task(schedule.pk)
+        self.assertEqual(schedule_pk, schedule.pk)
+        schedule.refresh_from_db()
+        self.assertEqual(1, schedule.counter)
+
+    def test_execute_schedule_task_not_found(self):
+        OtherStuffFactory()
+        schedule = Schedule.objects.filter(verb=DUMMY_EVENT).first()
+        self.assertEqual(0, schedule.counter)
+        schedule_pk = execute_schedule_task(0)
+        self.assertIsNone(schedule_pk)
+        schedule.refresh_from_db()
+        self.assertEqual(0, schedule.counter)
+
+    def test_clean_scheduled_tasks(self):
+        OtherStuffFactory()
+        schedule = Schedule.objects.filter(verb=DUMMY_EVENT).first()
+        execute_schedule_task(schedule.pk)
+        clean_scheduled_tasks()
+        self.assertEqual(0, Schedule.objects.filter(verb=DUMMY_EVENT).count())

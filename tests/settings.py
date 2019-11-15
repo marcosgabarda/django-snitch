@@ -13,8 +13,12 @@ INSTALLED_APPS = [
     "tests.app",
 ]
 
-SITE_ID = 1
+# Schedules
+INSTALLED_APPS += ["django_celery_beat", "snitch.schedules"]
 
+SITE_ID = 1
+LANGUAGE_CODE = "en"
+LANGUAGES = [("en", "English")]
 MIDDLEWARE = ()
 TEMPLATES = [
     {

@@ -20,6 +20,8 @@ flit = "*"
 [dev-packages]
 mypy = "*"
 black = "==19.3b0"
+cron-descriptor = "*"
+django-celery-beat = "*"
 
 [requires]
 python_version = "3.7"

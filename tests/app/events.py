@@ -8,6 +8,7 @@ from snitch.backends import PushNotificationBackend, EmailNotificationBackend
 ACTIVATED_EVENT = "activated"
 CONFIRMED_EVENT = "confirmed"
 DUMMY_EVENT = "dummy"
+EVERY_HOUR = "every hour"
 
 
 @snitch.register(ACTIVATED_EVENT)
@@ -50,3 +51,8 @@ class ConfirmedHandler(snitch.EventHandler):
 class DummyHandler(snitch.EventHandler):
     title = "Dummy event"
     delay = 60
+
+
+@snitch.register(EVERY_HOUR)
+class EveryHourHandler(snitch.EventHandler):
+    title = "Every hour event"

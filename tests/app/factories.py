@@ -1,6 +1,6 @@
 from factory import DjangoModelFactory
 
-from tests.app.models import Stuff, Target, Trigger, Actor
+from tests.app.models import Stuff, Target, Trigger, Actor, OtherStuff
 
 
 class StuffFactory(DjangoModelFactory):
@@ -21,3 +21,8 @@ class TriggerFactory(DjangoModelFactory):
 class TargetFactory(DjangoModelFactory):
     class Meta:
         model = Target
+
+
+class OtherStuffFactory(DjangoModelFactory):
+    class Meta:
+        model = OtherStuff
