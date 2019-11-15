@@ -109,14 +109,6 @@ class SnitchTestCase(TestCase):
         schedule = Schedule.objects.filter(verb=EVERY_HOUR).first()
         self.assertEqual(str(other_stuff.created.minute), schedule.minute)
         self.assertEqual("*/1", schedule.hour)
-        locale.setlocale(locale.LC_ALL, "en_US")
-        self.assertIn(
-            schedule.human_frequency(),
-            [
-                f"at {schedule.minute} minutes past the hour",
-                f"at {schedule.minute} minute past the hour",
-            ],
-        )
 
     def test_execute_schedule_task(self):
         OtherStuffFactory()

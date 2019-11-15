@@ -22,10 +22,6 @@ except ImportError:
     raise SnitchError(
         "The snitch.schedules app requieres the django-celery-beat package."
     )
-try:
-    import cron_descriptor
-except ImportError:
-    raise SnitchError("The snitch.schedules app requieres the cron-descriptor package.")
 
 
 class Schedule(TimeStampedModel):
@@ -139,18 +135,6 @@ class Schedule(TimeStampedModel):
     def periodic_task_name(self) -> str:
         """Unique task name, using to create it in celery."""
         return f"snitch-scheduled-event-task-{self.pk}"
-
-    def human_frequency(self) -> Optional[str]:
-        """Human readable frequency."""
-        if self.task and self.task.crontab:
-            values: list = [
-                self.minute,
-                self.hour,
-                self.day_of_month,
-                self.month_of_year,
-                self.day_of_week,
-            ]
-            return cron_descriptor.get_description(" ".join(values)).lower()
 
     def creates_periodic_task_extra_kwarg(self) -> dict:
         """Creates the extra arguments for the periodic task."""

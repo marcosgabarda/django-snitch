@@ -1,7 +1,3 @@
-addons:
-  apt:
-    packages:
-      - language-pack-en
 language: python
 python:
   - "3.6"
