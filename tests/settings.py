@@ -36,11 +36,12 @@ TEMPLATES = [
 # DJANGO PUSH NOTIFICATIONS
 # ------------------------------------------------------------------------------
 # See: https://github.com/jazzband/django-push-notifications
-INSTALLED_APPS += ("push_notifications",)
-PUSH_NOTIFICATIONS_SETTINGS = {
-    "CONFIG": "push_notifications.conf.AppConfig",
-    "APPLICATIONS": {"snitch": {"PLATFORM": "FCM", "API_KEY": ""}},
-}
+# TODO Activate when push_notifications supports Django 3.0
+# INSTALLED_APPS += ("push_notifications",)
+# PUSH_NOTIFICATIONS_SETTINGS = {
+#     "CONFIG": "push_notifications.conf.AppConfig",
+#     "APPLICATIONS": {"snitch": {"PLATFORM": "FCM", "API_KEY": ""}},
+# }
 
 # SNITCH SETTINGS
 # ------------------------------------------------------------------------------

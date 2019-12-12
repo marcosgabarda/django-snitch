@@ -1,4 +1,5 @@
 import locale
+import warnings
 
 from django.test import TestCase
 from django_celery_beat.models import DAYS
@@ -134,3 +135,21 @@ class SnitchTestCase(TestCase):
         execute_schedule_task(schedule.pk)
         clean_scheduled_tasks()
         self.assertEqual(0, Schedule.objects.filter(verb=DUMMY_EVENT).count())
+
+    def test_scheduled_task_without_actor(self):
+        OtherStuffFactory()
+        schedule = Schedule.objects.filter(verb=DUMMY_EVENT).first()
+        schedule.actor = None
+        schedule.save()
+        with warnings.catch_warnings(record=True) as warns:
+            warnings.simplefilter("always")
+            schedule.run()
+            self.assertEqual(1, len(warns))
+            self.assertEqual(warns[-1].category, UserWarning)
+        self.assertEqual(0, Event.objects.filter(verb=DUMMY_EVENT).count())
+
+    def test_clean_scheduled_tasks_run(self):
+        OtherStuffFactory()
+        schedule = Schedule.objects.filter(verb=DUMMY_EVENT).first()
+        schedule.run()
+        self.assertEqual(1, Event.objects.filter(verb=DUMMY_EVENT).count())

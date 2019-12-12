@@ -3,6 +3,12 @@
 History
 -------
 
+1.5.0 (2019-12-12)
++++++++++++++++++
+
+* Added support to Django 3.0
+* Added translation activation for async notifications
+
 1.4.1 (2019-11-18)
 +++++++++++++++++
 

@@ -1,3 +1,4 @@
+import warnings
 from typing import Optional
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -169,6 +170,8 @@ class Schedule(TimeStampedModel):
     def run(self):
         """Executes the schedule, dispatching the event."""
         # Dispatch the event using explicit dispatch
+        if not self.actor:
+            warnings.warn(f"The schedule {self.pk} has been executed without actor.")
         if self.is_active():
             snitch.dispatch(
                 verb=self.verb,

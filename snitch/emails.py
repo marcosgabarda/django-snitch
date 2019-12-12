@@ -80,10 +80,11 @@ class TemplateEmailMessage:
                 email.attach(attach_file_name, attach_content, attach_content_type)
             email.send()
 
-    def send(self, use_async: bool = True):
+    def send(self, use_async: bool = True, language: Optional[str] = None):
         """Sends the email at the moment or using a Celery task."""
         if not ENABLED_SEND_NOTIFICATIONS:
             return
+
         use_async = not self.attaches and use_async
         context = self.get_context()
         message = render_to_string(self.template_name, context, using="django")

@@ -2,8 +2,6 @@ import logging
 from typing import Dict, Union, Type, Optional
 
 from django.contrib.auth import get_user_model
-from push_notifications.gcm import GCMError
-from push_notifications.models import GCMDevice, APNSDevice
 
 from snitch.emails import TemplateEmailMessage
 from snitch.settings import ENABLED_SEND_NOTIFICATIONS
@@ -35,12 +33,20 @@ class PushNotificationBackend(AbstractBackend):
         return {}
 
     def _get_devices(
-        self, device_class: Union[Type[GCMDevice], Type[APNSDevice]]
+        self, device_class: Union[Type["GCMDevice"], Type["APNSDevice"]]
     ) -> "QuerySet":
         """Gets the devices using the given class."""
         return device_class.objects.filter(user=self.notification.user)
 
     def _send_gcm(self):
+        # While push_notifications is not working with Django 3.0, we are ignoring
+        # the push sending
+        try:
+            from push_notifications.gcm import GCMError
+            from push_notifications.models import GCMDevice
+        except ImportError:
+            return
+
         devices = self._get_devices(GCMDevice)
         message = self.text
         extra = {}
@@ -52,12 +58,21 @@ class PushNotificationBackend(AbstractBackend):
             extra["action_id"] = self.action_id
         if self.extra_data():
             extra.update(self.extra_data())
+
         try:
             devices.send_message(message=message, extra=extra)
         except GCMError:
             logger.warning("Error sending GCM push message")
 
     def _send_apns(self):
+        # While push_notifications is not working with Django 3.0, we are ignoring
+        # the push sending
+        try:
+            from push_notifications.models import APNSDevice
+            from push_notifications.apns import APNSError
+        except ImportError:
+            return
+
         devices = self._get_devices(APNSDevice)
         message = self.text
         extra = {}
@@ -71,7 +86,7 @@ class PushNotificationBackend(AbstractBackend):
             extra.update(self.extra_data())
         try:
             devices.send_message(message=message, extra=extra)
-        except GCMError:
+        except APNSError:
             logger.warning("Error sending APNS push message")
 
     def send(self):
@@ -90,12 +105,13 @@ class EmailNotificationBackend(AbstractBackend):
     get_email_subject_attr: str = "get_email_subject"
 
     def __use_async(self) -> bool:
-        """Check if the email can use async."""
+        """Check if the email can use async, False by default, because the notification
+        is already sent using a task."""
         handler = self.notification.event.handler()
         return (
             handler.template_email_async
             if hasattr(handler, "template_email_async")
-            else True
+            else False
         )
 
     def extra_context(self) -> Dict:

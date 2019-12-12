@@ -1,5 +1,6 @@
 from typing import Type, Tuple, Optional, List, Dict
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.utils.translation import ugettext_lazy as _
@@ -65,8 +66,15 @@ class EventHandler:
 
     def get_delay(self) -> int:
         """Returns and in, number of seconds, that corresponds with the time
-        the notification should be delayed."""
+        the notification should be delayed.
+        """
         return self.delay
+
+    def get_language(self, user: Optional[Type["User"]] = None) -> str:
+        """Gets the locale for the given used. By default, users the LANGUAGE_CODE
+        value from settings.
+        """
+        return settings.LANGUAGE_CODE
 
     def audience(self) -> QuerySet:
         """Gets the audience of the event. None by default, to be hooked by the user."""

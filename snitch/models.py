@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
@@ -182,6 +183,10 @@ class AbstractNotification(TimeStampedModel):
                     (self.pk,), **self._task_kwargs(handler)
                 )
             else:
+                # Activate language for translations
+                if settings.USE_I18N:
+                    language = handler.get_language(self.user)
+                    translation.activate(language)
                 for backend_class in handler.notification_backends:
                     backend = backend_class(self)
                     backend.send()

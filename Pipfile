@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "<3.0"
-django-model-utils = "*"
+django = "*"
+django-model-utils = ">=4.0"
 django-push-notifications = "*"
 pytest = "*"
 pytest-cov = "*"
