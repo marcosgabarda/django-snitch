@@ -196,7 +196,6 @@
             ],
             "version": "==2.8"
         },
-        },
         "django": {
             "hashes": [
                 "sha256:6f857bd4e574442ba35a7172f1397b303167dae964cf18e53db5e85fe248d000",
