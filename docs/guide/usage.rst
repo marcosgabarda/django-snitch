@@ -1,44 +1,13 @@
-=============
-Django Snitch
-=============
+===============
+Getting Started
+===============
 
-.. image:: https://travis-ci.org/marcosgabarda/django-snitch.svg?branch=master
-    :target: https://travis-ci.org/marcosgabarda/django-snitch
+Registering events handlers
+---------------------------
 
-.. image:: https://coveralls.io/repos/github/marcosgabarda/django-snitch/badge.svg?branch=master
-    :target: https://coveralls.io/github/marcosgabarda/django-snitch?branch=master
-
-.. image:: https://img.shields.io/badge/code_style-black-000000.svg
-   :target: https://github.com/ambv/black
-
-.. image:: https://readthedocs.org/projects/django-snitch/badge/?version=latest
-    :target: https://django-snitch.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
-
-Django app made to integrate generic events that create notifications that
-can be sent to users using several backends.
-
-By default, it integrates **push notifications** and **email** to send the
-notifications.
-
-Made with Python 3 and Django with :heart:.
-
-Quick start
------------
-
-**1** Install using pip:
-
-.. code-block:: bash
-
-    pip install django-snitch
-
-**2** Add "snitch" to your INSTALLED_APPS settings like this:
-
-.. code-block:: python
-
-    INSTALLED_APPS += ('snitch',)
-
-**3** Create an ``events.py`` file in your app to register the events:
+Django-snitch uses a system similar to django admin to register event handlers with
+events. For doing that, first you need to create an ``events.py`` file in your
+Django app.
 
 .. code-block:: python
 
@@ -67,7 +36,13 @@ Quick start
             return get_user_model().objects.all()
 
 
-**4** Use ``dispatch`` decorator to dispatch the event when a function is called:
+Dispatching events
+------------------
+
+Once you have registered all the events handlers you need, the next step is to dispatch
+these events when an action is performed.
+
+In order to do that, you can use the ``dispatch`` decorator:
 
 .. code-block:: python
 

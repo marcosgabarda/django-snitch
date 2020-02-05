@@ -22,6 +22,8 @@ mypy = "*"
 black = "==19.3b0"
 cron-descriptor = "*"
 django-celery-beat = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
 
 [requires]
 python_version = "3.7"
