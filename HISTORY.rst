@@ -3,6 +3,12 @@
 History
 -------
 
+1.6.1 (2020-04-08)
++++++++++++++++++
+
+* Fixed problem with handler instance cache
+
+
 1.6.0 (2020-04-08)
 +++++++++++++++++
 

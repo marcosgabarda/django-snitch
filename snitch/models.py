@@ -97,12 +97,8 @@ class Event(TimeStampedModel):
         return handler.get_text()
 
     def handler(self, notification: "Notification" = None):
-        """Gets the handler for the event. Save the instance of the handler in the
-        model.
-        """
-        if not hasattr(self, "_handler_instance"):
-            self._handler_instance = manager.handler(self, notification=notification)
-        return self._handler_instance
+        """Gets the handler for the event."""
+        return manager.handler(self, notification=notification)
 
     def notify(self):
         """Creates the notifications associated to this action, ."""
@@ -154,12 +150,8 @@ class AbstractNotification(TimeStampedModel):
         return kwargs
 
     def handler(self):
-        """Gets the handler for the notification. Save the instance of the handler in 
-        the model.
-        """
-        if not hasattr(self, "_handler_instance"):
-            self._handler_instance = self.event.handler(notification=self)
-        return self._handler_instance
+        """Gets the handler for the notification."""
+        return self.event.handler(notification=self)
 
     def send(self, send_async: bool = False):
         """Sends a push notification to the devices of the user."""
