@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = ">=3.0.0"
 django-model-utils = ">=4.0"
-django-push-notifications = "*"
+django-push-notifications = ">=2.0.0"
 pytest = "*"
 pytest-cov = "*"
 sphinx = "*"
@@ -16,6 +16,8 @@ bleach = "*"
 celery = "*"
 tox = "*"
 flit = "*"
+django-timezone-field = "*"
+hyper = "*"
 
 [dev-packages]
 mypy = "*"

@@ -7,22 +7,22 @@ from django_celery_beat.models import DAYS
 import snitch
 from snitch.models import Event
 from snitch.schedules.models import Schedule
-from snitch.schedules.tasks import execute_schedule_task, clean_scheduled_tasks
+from snitch.schedules.tasks import clean_scheduled_tasks, execute_schedule_task
 from tests.app.events import (
     ACTIVATED_EVENT,
-    ActivatedHandler,
-    DUMMY_EVENT,
-    DummyHandler,
     CONFIRMED_EVENT,
-    ConfirmedHandler,
+    DUMMY_EVENT,
     EVERY_HOUR,
+    ActivatedHandler,
+    ConfirmedHandler,
+    DummyHandler,
 )
 from tests.app.factories import (
-    StuffFactory,
     ActorFactory,
+    OtherStuffFactory,
+    StuffFactory,
     TargetFactory,
     TriggerFactory,
-    OtherStuffFactory,
 )
 from tests.app.helpers import dispatch_dummy_event, dispatch_explicit_dummy_event
 from tests.app.models import Notification
@@ -49,7 +49,8 @@ class SnitchTestCase(TestCase):
         self.assertEqual(1, Event.objects.filter(verb=ACTIVATED_EVENT).count())
         event = Event.objects.filter(verb=ACTIVATED_EVENT).first()
         self.assertTrue(isinstance(event.handler(), ActivatedHandler))
-        self.assertEqual(ActivatedHandler.title, event.title())
+        handler = event.handler()
+        self.assertEqual(ActivatedHandler.title, handler.get_title())
 
     def test_dispatch_event_with_backends(self):
         users = UserFactory.create_batch(size=5)
@@ -59,9 +60,12 @@ class SnitchTestCase(TestCase):
         self.assertEqual(1, Event.objects.filter(verb=CONFIRMED_EVENT).count())
         event = Event.objects.filter(verb=CONFIRMED_EVENT).first()
         self.assertTrue(isinstance(event.handler(), ConfirmedHandler))
-        self.assertEqual(ConfirmedHandler.title, event.title())
+        handler = event.handler()
+        self.assertEqual(ConfirmedHandler.title, handler.get_title())
         self.assertTrue(event.notified)
         self.assertEqual(len(users), Notification.objects.all().count())
+        notification_handler = Notification.objects.first().handler()
+        self.assertIsNotNone(notification_handler.notification)
 
     def test_dispatch_event_from_function(self):
         self.assertEqual(0, Event.objects.filter(verb=DUMMY_EVENT).count())

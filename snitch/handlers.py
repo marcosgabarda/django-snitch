@@ -36,8 +36,9 @@ class EventHandler:
             config=cls.dispatch_config, args=args, kwargs=kwargs
         )
 
-    def __init__(self, event: "Event"):
+    def __init__(self, event: "Event", notification: "Notification" = None):
         self.event = event
+        self.notification = notification
 
     def _default_dynamic_text(self) -> str:
         """Makes an event human readable."""
@@ -118,9 +119,11 @@ class EventManager:
         """Returns a class instance of the handler for the given verb."""
         return self._registry.get(verb, EventHandler)
 
-    def handler(self, event: "Event") -> Optional[EventHandler]:
+    def handler(
+        self, event: "Event", notification: "Notification" = None
+    ) -> Optional[EventHandler]:
         """Returns an instance of the handler for the given event."""
-        return self.handler_class(event.verb)(event)
+        return self.handler_class(event.verb)(event, notification=notification)
 
 
 # This global object represents the singleton event manager object

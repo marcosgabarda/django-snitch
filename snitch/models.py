@@ -93,35 +93,16 @@ class Event(TimeStampedModel):
         verbose_name_plural = _("events")
 
     def __str__(self):
-        return self.text()
+        handler = self.handler()
+        return handler.get_text()
 
-    def handler(self):
+    def handler(self, notification: "Notification" = None):
         """Gets the handler for the event. Save the instance of the handler in the
         model.
         """
         if not hasattr(self, "_handler_instance"):
-            self._handler_instance = manager.handler(self)
+            self._handler_instance = manager.handler(self, notification=notification)
         return self._handler_instance
-
-    def text(self):
-        """Gets the human readable text for the event."""
-        handler = self.handler()
-        return handler.get_text()
-
-    def title(self):
-        """Gets the title for the event."""
-        handler = self.handler()
-        return handler.get_title()
-
-    def action_type(self):
-        """Gets the action type depending on the verb."""
-        handler = self.handler()
-        return handler.get_action_type()
-
-    def action_id(self):
-        """Gets the action id depending on the verb."""
-        handler = self.handler()
-        return handler.get_action_id()
 
     def notify(self):
         """Creates the notifications associated to this action, ."""
@@ -171,6 +152,14 @@ class AbstractNotification(TimeStampedModel):
         if delay:
             kwargs["countdown"] = delay
         return kwargs
+
+    def handler(self):
+        """Gets the handler for the notification. Save the instance of the handler in 
+        the model.
+        """
+        if not hasattr(self, "_handler_instance"):
+            self._handler_instance = self.event.handler(notification=self)
+        return self._handler_instance
 
     def send(self, send_async: bool = False):
         """Sends a push notification to the devices of the user."""

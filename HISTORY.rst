@@ -3,6 +3,11 @@
 History
 -------
 
+1.6.0 (2020-04-08)
++++++++++++++++++
+
+* Added Notification object to the EventHandler, to be able to customize the handler methods depending on the notification user
+
 1.5.0 (2019-12-12)
 +++++++++++++++++
 

@@ -15,10 +15,7 @@ class AbstractBackend:
 
     def __init__(self, notification: "Notification"):
         self.notification: "Notification" = notification
-        self.title: str = self.notification.event.title()
-        self.text: str = self.notification.event.text()
-        self.action_type: str = self.notification.event.action_type()
-        self.action_id: str = self.notification.event.action_id()
+        self.handler: "EventHandler" = self.notification.handler()
 
     def send(self):
         """A subclass should to implement the send method."""
@@ -27,6 +24,14 @@ class AbstractBackend:
 
 class PushNotificationBackend(AbstractBackend):
     """A backend class to send push notifications depending on the platform."""
+
+    def __init__(self, *args, **kwargs):
+        """Adds attributes for the push notification from the handler."""
+        super().__init__(*args, **kwargs)
+        self.title: str = self.handler.get_title()
+        self.text: str = self.handler.get_text()
+        self.action_type: str = self.handler.get_action_type()
+        self.action_id: str = self.handler.get_action_id()
 
     def extra_data(self) -> Dict:
         """Gets the extra data to add to the push, to be hooked if needed."""
@@ -107,42 +112,37 @@ class EmailNotificationBackend(AbstractBackend):
     def __use_async(self) -> bool:
         """Check if the email can use async, False by default, because the notification
         is already sent using a task."""
-        handler = self.notification.event.handler()
         return (
-            handler.template_email_async
-            if hasattr(handler, "template_email_async")
+            self.handler.template_email_async
+            if hasattr(self.handler, "template_email_async")
             else False
         )
 
     def extra_context(self) -> Dict:
         """Gets extra context to the email if there is a method in the handler."""
-        handler = self.notification.event.handler()
-        if hasattr(handler, self.get_email_extra_context_attr):
-            return getattr(handler, self.get_email_extra_context_attr)()
+        if hasattr(self.handler, self.get_email_extra_context_attr):
+            return getattr(self.handler, self.get_email_extra_context_attr)()
         return {}
 
     def subject(self) -> Optional[str]:
         """Gets subject of the email if there is a method in the handler."""
-        handler = self.notification.event.handler()
-        if hasattr(handler, self.get_email_subject_attr):
-            return getattr(handler, self.get_email_subject_attr)()
+        if hasattr(self.handler, self.get_email_subject_attr):
+            return getattr(self.handler, self.get_email_subject_attr)()
         return None
 
     def email_kwargs(self) -> Optional[dict]:
         """Dynamically gets the kwargs for TemplateEmailMessage"""
-        handler = self.notification.event.handler()
         kwargs = None
-        if hasattr(handler, self.get_email_kwargs_attr):
-            kwargs = getattr(handler, self.get_email_kwargs_attr)()
-        elif hasattr(handler, self.template_email_kwargs_attr):
-            kwargs = getattr(handler, self.template_email_kwargs_attr)
+        if hasattr(self.handler, self.get_email_kwargs_attr):
+            kwargs = getattr(self.handler, self.get_email_kwargs_attr)()
+        elif hasattr(self.handler, self.template_email_kwargs_attr):
+            kwargs = getattr(self.handler, self.template_email_kwargs_attr)
         return kwargs
 
     def send(self):
         """Sends the email."""
         if ENABLED_SEND_NOTIFICATIONS:
             # Gets the handler to extract the arguments from template_email_kwargs
-            handler = self.notification.event.handler()
             kwargs = self.email_kwargs()
             if kwargs:
                 # Gets to email
