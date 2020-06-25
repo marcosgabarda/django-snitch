@@ -9,6 +9,7 @@ ACTIVATED_EVENT = "activated"
 CONFIRMED_EVENT = "confirmed"
 DUMMY_EVENT = "dummy"
 EVERY_HOUR = "every hour"
+SMALL_EVENT = "small"
 
 
 @snitch.register(ACTIVATED_EVENT)
@@ -56,3 +57,12 @@ class DummyHandler(snitch.EventHandler):
 @snitch.register(EVERY_HOUR)
 class EveryHourHandler(snitch.EventHandler):
     title = "Every hour event"
+
+
+@snitch.register(SMALL_EVENT)
+class SmallHandler(snitch.EventHandler):
+    ephemeral = True
+    notification_backends = [EmailNotificationBackend]
+    title = "Small event!"
+    template_email_kwargs = {"template_name": "email.html"}
+    template_email_async = False

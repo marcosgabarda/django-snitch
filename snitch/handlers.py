@@ -1,4 +1,4 @@
-from typing import Type, Tuple, Optional, List, Dict
+from typing import Dict, List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -6,7 +6,11 @@ from django.db.models import QuerySet
 from django.utils.translation import ugettext_lazy as _
 
 from snitch.exceptions import HandlerError
-from snitch.helpers import extract_actor_trigger_target, get_notification_model
+from snitch.helpers import (
+    extract_actor_trigger_target,
+    get_notification_model,
+    send_event_to_user,
+)
 
 
 class EventHandler:
@@ -14,13 +18,13 @@ class EventHandler:
 
     should_notify: bool = True
     should_send: bool = True
+    ephemeral: bool = False
     dispatch_config: Dict = {"args": ("actor", "trigger", "target")}
     action_type: Optional[str] = None
     action_id: Optional[str] = None
     title: Optional[str] = None
     text: Optional[str] = None
     delay: int = 0
-
     notification_backends: List = []
 
     @classmethod
@@ -83,11 +87,20 @@ class EventHandler:
         return User.objects.none()
 
     def notify(self):
-        """Creates a notification fot each user in the audience."""
-        Notification = get_notification_model()
-        for user in self.audience():
-            notification = Notification(event=self.event, user=user)
-            notification.save()
+        """If the event is not ephemeral, creates a notification fot each user in the 
+        audience. In other case, only sends the notification, but doesn't save 
+        into the database.
+        """
+        if not self.ephemeral:
+            # Creates a notification
+            Notification = get_notification_model()
+            for user in self.audience():
+                notification = Notification(event=self.event, user=user)
+                notification.save()
+        else:
+            # Only sends the event to the user
+            for user in self.audience():
+                send_event_to_user(event=self.event, user=user)
 
 
 class EventManager:

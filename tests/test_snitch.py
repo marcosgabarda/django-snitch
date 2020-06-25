@@ -13,6 +13,7 @@ from tests.app.events import (
     CONFIRMED_EVENT,
     DUMMY_EVENT,
     EVERY_HOUR,
+    SMALL_EVENT,
     ActivatedHandler,
     ConfirmedHandler,
     DummyHandler,
@@ -157,3 +158,12 @@ class SnitchTestCase(TestCase):
         schedule = Schedule.objects.filter(verb=DUMMY_EVENT).first()
         schedule.run()
         self.assertEqual(1, Event.objects.filter(verb=DUMMY_EVENT).count())
+
+    def test_ephemeral_event(self):
+        self.assertEqual(0, Event.objects.filter(verb=SMALL_EVENT).count())
+        stuff = StuffFactory()
+        stuff.small()
+        self.assertEqual(1, Event.objects.filter(verb=SMALL_EVENT).count())
+        self.assertEqual(
+            0, Notification.objects.filter(event__verb=SMALL_EVENT).count()
+        )

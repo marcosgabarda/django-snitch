@@ -1,7 +1,9 @@
-from typing import Dict, Optional, Any, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import translation
 
 from snitch.settings import NOTIFICATION_MODEL
 
@@ -64,3 +66,18 @@ def extract_actor_trigger_target(config: Dict, args: Tuple, kwargs: Dict) -> Tup
         except (ValueError, KeyError):
             pass
     return actor, trigger, target
+
+
+def send_event_to_user(event: "Event", user: "User") -> None:
+    """Takes the event and sends it to the user using the backend of the event 
+    handler.
+    """
+    handler: EventHandler = event.handler()
+    if handler.should_send:
+        # Activate language for translations
+        if settings.USE_I18N:
+            language = handler.get_language(user)
+            translation.activate(language)
+        for backend_class in handler.notification_backends:
+            backend = backend_class(event=event, user=user)
+            backend.send()

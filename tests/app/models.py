@@ -4,7 +4,7 @@ from model_utils.models import TimeStampedModel
 
 import snitch
 from snitch.models import AbstractNotification
-from tests.app.events import ACTIVATED_EVENT, CONFIRMED_EVENT
+from tests.app.events import ACTIVATED_EVENT, CONFIRMED_EVENT, SMALL_EVENT
 
 
 class Notification(AbstractNotification):
@@ -28,6 +28,10 @@ class Stuff(models.Model):
     @snitch.dispatch(CONFIRMED_EVENT)
     def confirm(self):
         self.confirmed_at = timezone.now()
+
+    @snitch.dispatch(SMALL_EVENT)
+    def small(self):
+        pass
 
 
 class Actor(models.Model):

@@ -13,9 +13,24 @@ User = get_user_model()
 class AbstractBackend:
     """Abstract backend class for notifications."""
 
-    def __init__(self, notification: "Notification"):
-        self.notification: "Notification" = notification
-        self.handler: "EventHandler" = self.notification.handler()
+    def __init__(
+        self,
+        notification: Optional["Notification"] = None,
+        event: Optional["Event"] = None,
+        user: Optional[User] = None,
+    ):
+        assert notification is not None or (
+            event is not None and user is not None
+        ), "You should provide a notification or an event and an user."
+
+        self.notification: Optional["Notification"] = notification
+        self.event: Optional["Event"] = event
+        self.user: Optional[User] = user
+        if self.notification:
+            self.handler: "EventHandler" = self.notification.handler()
+            self.user = self.notification.user
+        elif self.event:
+            self.handler: "EventHandler" = self.event.handler()
 
     def send(self):
         """A subclass should to implement the send method."""
@@ -152,17 +167,19 @@ class EmailNotificationBackend(AbstractBackend):
                     else None
                 )
                 if email:
-                    email_field_name = getattr(self.notification.user, "EMAIL_FIELD")
-                    kwargs.update(
-                        {"to": getattr(self.notification.user, email_field_name)}
-                    )
+                    email_field_name = getattr(self.user, "EMAIL_FIELD")
+                    kwargs.update({"to": getattr(self.user, email_field_name)})
                 # Override subject
                 subject = self.subject()
                 if subject:
                     kwargs["subject"] = subject
                 # Context
                 context = kwargs.get("context", {})
-                context.update({"notification": self.notification})
+                # Adds notification or event
+                if self.notification:
+                    context.update({"notification": self.notification})
+                if self.event:
+                    context.update({"event": self.event})
                 context.update(self.extra_context())
                 kwargs.update({"context": context})
                 # Sends email
