@@ -1,4 +1,4 @@
-from typing import Optional, Callable, Dict
+from typing import Callable, Dict, Optional
 
 from snitch.helpers import extract_actor_trigger_target
 

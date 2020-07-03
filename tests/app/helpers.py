@@ -10,10 +10,4 @@ def dispatch_dummy_event(actor, trigger, target):
 
 
 def dispatch_explicit_dummy_event(actor, trigger, target):
-    explicit_dispatch(
-        verb=DUMMY_EVENT,
-        config=DEFAULT_CONFIG,
-        actor=actor,
-        trigger=trigger,
-        target=target,
-    )
+    explicit_dispatch(verb=DUMMY_EVENT, actor=actor, trigger=trigger, target=target)

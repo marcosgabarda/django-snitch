@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Union, Type, Optional
+from typing import Dict, Optional, Type, Union
 
 from django.contrib.auth import get_user_model
 
@@ -56,7 +56,7 @@ class PushNotificationBackend(AbstractBackend):
         self, device_class: Union[Type["GCMDevice"], Type["APNSDevice"]]
     ) -> "QuerySet":
         """Gets the devices using the given class."""
-        return device_class.objects.filter(user=self.notification.user)
+        return device_class.objects.filter(user=self.user)
 
     def _send_gcm(self):
         # While push_notifications is not working with Django 3.0, we are ignoring

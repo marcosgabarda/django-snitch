@@ -6,6 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils import translation
 
 from snitch.settings import NOTIFICATION_MODEL
+from snitch.constants import DEFAULT_CONFIG
 
 
 def get_notification_model():
@@ -23,7 +24,9 @@ def get_notification_model():
         )
 
 
-def explicit_dispatch(verb: str, config: Optional[Dict] = None, *args, **kwargs) -> Any:
+def explicit_dispatch(
+    verb: str, config: Optional[Dict] = DEFAULT_CONFIG, *args, **kwargs
+) -> Any:
     """Helper to explicit dispatch an event without using a decorator."""
     from snitch.decorators import dispatch
 

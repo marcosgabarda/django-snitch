@@ -3,46 +3,52 @@
 History
 -------
 
+1.7.1 (2020-07-03)
+++++++++++++++++++
+
+* Fixed ephemeral events with push notifications
+* Added default config to explicit_dispatch
+
 1.7.0 (2020-06-25)
-+++++++++++++++++
+++++++++++++++++++
 
 * Added ephemeral events
 
 1.6.1 (2020-04-08)
-+++++++++++++++++
+++++++++++++++++++
 
 * Fixed problem with handler instance cache
 
 
 1.6.0 (2020-04-08)
-+++++++++++++++++
+++++++++++++++++++
 
 * Added Notification object to the EventHandler, to be able to customize the handler methods depending on the notification user
 
 1.5.0 (2019-12-12)
-+++++++++++++++++
+++++++++++++++++++
 
 * Added support to Django 3.0
 * Added translation activation for async notifications
 
 1.4.1 (2019-11-18)
-+++++++++++++++++
+++++++++++++++++++
 
 * Added admin for ``schedules``.
 
 1.4.0 (2019-11-15)
-+++++++++++++++++
+++++++++++++++++++
 
 * Added ``schedules`` app.
 
 1.3.1 (2019-11-12)
-+++++++++++++++++
+++++++++++++++++++
 
 * Added ``get_email_kwargs_attr`` function to handler to dynamical set the values of kwargs for email.
 * Can't use async when there is an attachment.
 
 1.3.0 (2019-10-18)
-+++++++++++++++++
+++++++++++++++++++
 
 * Added delay for notifications.
 * Starting to use type hints.
@@ -88,6 +94,6 @@ History
 * Fixed bug in ``explicit_dispatch``.
 
 1.0 (2019-8-14)
-+++++++++++++++++
++++++++++++++++
 
 * First release on PyPI.
