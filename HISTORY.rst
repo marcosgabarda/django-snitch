@@ -3,6 +3,12 @@
 History
 -------
 
+1.7.2 (2020-07-13)
+++++++++++++++++++
+
+* Fixed problem sending emails
+* Changed to poetry as build tool
+
 1.7.1 (2020-07-03)
 ++++++++++++++++++
 
