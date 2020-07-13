@@ -12,8 +12,8 @@ env:
     - PIPENV_CACHE_DIR=$HOME/.cache/pipenv
 install:
   - pip install coveralls
-  - pip install pipenv
-  - pipenv install --dev --system
+  - pip install poetry
+  - poetry config virtualenvs.create false && poetry install -n --no-ansi
 script:
   - black --check .
   - pytest --cov snitch
