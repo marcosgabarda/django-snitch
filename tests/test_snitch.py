@@ -1,4 +1,5 @@
 import locale
+from tests.app.emails import WelcomeEmail
 import warnings
 
 from django.test import TestCase
@@ -167,3 +168,12 @@ class SnitchTestCase(TestCase):
         self.assertEqual(
             0, Notification.objects.filter(event__verb=SMALL_EVENT).count()
         )
+
+    def test_send_email(self):
+        try:
+            email = WelcomeEmail(to="test@example.com", context={})
+            email.send(use_async=False)
+            exception = False
+        except Exception:
+            exception = True
+        self.assertFalse(exception)

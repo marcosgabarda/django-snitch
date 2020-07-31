@@ -1,11 +1,12 @@
 import warnings
-from typing import Optional, Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import bleach
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import translation
 
 from snitch.settings import ENABLED_SEND_NOTIFICATIONS
 from snitch.tasks import send_email_asynchronously
@@ -20,6 +21,7 @@ class TemplateEmailMessage:
     default_subject: str = ""
     default_from_email: str = ""
     fake: bool = False
+    use_i18n: bool = False
 
     def __init__(
         self,
@@ -43,6 +45,10 @@ class TemplateEmailMessage:
         self.from_email = self.default_from_email if from_email is None else from_email
         self.attaches = [] if attaches is None else attaches
         self.default_context = {} if context is None else context
+
+    def get_language(self) -> str:
+        """Gets the language for the email."""
+        return settings.LANGUAGE_CODE
 
     def get_context(self) -> Dict:
         """Hook to customize context."""
@@ -88,6 +94,9 @@ class TemplateEmailMessage:
             return
 
         use_async = not self.attaches and use_async
+        if self.use_i18n and settings.USE_I18N:
+            language = self.get_language()
+            translation.activate(language)
         context = self.get_context()
         message = render_to_string(self.template_name, context, using="django")
         message_txt = message.replace("\n", "")
