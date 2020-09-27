@@ -20,6 +20,9 @@ class TemplateEmailMessage:
     default_template_name: str = ""
     default_subject: str = ""
     default_from_email: str = ""
+    default_reply_to: str = ""
+    default_bcc: str = ""
+    default_cc: str = ""
     fake: bool = False
     use_i18n: bool = False
 
@@ -31,6 +34,9 @@ class TemplateEmailMessage:
         from_email: Optional[str] = None,
         attaches: Optional[List] = None,
         template_name: Optional[str] = None,
+        reply_to: Optional[str] = None,
+        bcc: Optional[str] = None,
+        cc: Optional[str] = None,
     ):
         self.template_name = (
             self.default_template_name if template_name is None else template_name
@@ -43,6 +49,9 @@ class TemplateEmailMessage:
             self.to = to
         self.subject = "%s" % self.default_subject if subject is None else subject
         self.from_email = self.default_from_email if from_email is None else from_email
+        self.reply_to = self.default_reply_to if reply_to is None else reply_to
+        self.bcc = self.default_bcc if bcc is None else bcc
+        self.cc = self.default_bcc if cc is None else cc
         self.attaches = [] if attaches is None else attaches
         self.default_context = {} if context is None else context
 
@@ -79,8 +88,11 @@ class TemplateEmailMessage:
             email = EmailMultiAlternatives(
                 subject=self.subject,
                 body=message_txt,
+                bcc=self.bcc,
+                cc=self.cc,
                 from_email=self.from_email,
                 to=self.to,
+                reply_to=self.reply_to,
             )
             email.attach_alternative(message, "text/html")
             for attach in self.attaches:

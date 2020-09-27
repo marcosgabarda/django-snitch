@@ -18,8 +18,8 @@ def execute_schedule_task(schedule_id):
 @task(serializer="json")
 def clean_scheduled_tasks():
     """Task to clean one shot periodic tasks. Note that this can be done better
-     using the proper attributes for PeriodicTask.
-     """
+    using the proper attributes for PeriodicTask.
+    """
     from snitch.schedules.models import Schedule
 
     schedules = Schedule.objects.filter(limit__isnull=False).filter(

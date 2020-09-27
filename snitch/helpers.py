@@ -72,7 +72,7 @@ def extract_actor_trigger_target(config: Dict, args: Tuple, kwargs: Dict) -> Tup
 
 
 def send_event_to_user(event: "Event", user: "User") -> None:
-    """Takes the event and sends it to the user using the backend of the event 
+    """Takes the event and sends it to the user using the backend of the event
     handler.
     """
     handler: EventHandler = event.handler()

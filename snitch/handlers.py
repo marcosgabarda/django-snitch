@@ -87,8 +87,8 @@ class EventHandler:
         return User.objects.none()
 
     def notify(self):
-        """If the event is not ephemeral, creates a notification fot each user in the 
-        audience. In other case, only sends the notification, but doesn't save 
+        """If the event is not ephemeral, creates a notification fot each user in the
+        audience. In other case, only sends the notification, but doesn't save
         into the database.
         """
         if not self.ephemeral:
