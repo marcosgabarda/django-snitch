@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -12,6 +12,10 @@ from snitch.helpers import (
     send_event_to_user,
 )
 
+if TYPE_CHECKING:
+    from snitch.backends import AbstractBackend
+    from snitch.models import Event, Notification
+
 
 class EventHandler:
     """Base event backend to generic even types."""
@@ -22,10 +26,12 @@ class EventHandler:
     dispatch_config: Dict = {"args": ("actor", "trigger", "target")}
     action_type: Optional[str] = None
     action_id: Optional[str] = None
-    title: Optional[str] = None
-    text: Optional[str] = None
+    title: str = ""
+    text: str = ""
     delay: int = 0
-    notification_backends: List = []
+    notification_backends: List[Type["AbstractBackend"]] = []
+
+    template_email_async: bool = False
 
     @classmethod
     def extract_actor_trigger_target(cls, method: str, *args, **kwargs):
@@ -53,11 +59,11 @@ class EventHandler:
             text = "{} {}".format(text, str(self.event.target))
         return text
 
-    def get_text(self) -> Optional[str]:
+    def get_text(self) -> str:
         """Override to handle different human readable implementations."""
         return self.text or self._default_dynamic_text()
 
-    def get_title(self) -> Optional[str]:
+    def get_title(self) -> str:
         """Gets the title for the event. To be hooked."""
         return self.title
 
@@ -75,7 +81,7 @@ class EventHandler:
         """
         return self.delay
 
-    def get_language(self, user: Optional[Type["User"]] = None) -> str:
+    def get_language(self, user=None) -> str:
         """Gets the locale for the given used. By default, users the LANGUAGE_CODE
         value from settings.
         """
@@ -134,7 +140,7 @@ class EventManager:
 
     def handler(
         self, event: "Event", notification: "Notification" = None
-    ) -> Optional[EventHandler]:
+    ) -> EventHandler:
         """Returns an instance of the handler for the given event."""
         return self.handler_class(event.verb)(event, notification=notification)
 

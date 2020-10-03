@@ -4,5 +4,5 @@ from django.utils.translation import ugettext_lazy as _
 
 class SnitchSchedulesAppConfig(AppConfig):
 
-    name = "snitch.schedules"
-    verbose_name = _("Schedules")
+    name: str = "snitch.schedules"
+    verbose_name: str = _("Schedules")

@@ -1,6 +1,6 @@
 import warnings
-from typing import Optional
 
+import snitch.handlers
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
@@ -8,16 +8,14 @@ from django.db import models
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
-
-import snitch.handlers
 from snitch.exceptions import SnitchError
 
 try:
     from django_celery_beat.models import (
-        PeriodicTask,
-        CrontabSchedule,
         PERIOD_CHOICES,
+        CrontabSchedule,
         IntervalSchedule,
+        PeriodicTask,
     )
 except ImportError:
     raise SnitchError(
@@ -167,7 +165,7 @@ class Schedule(TimeStampedModel):
             task = PeriodicTask.objects.filter(name=name).first()
         return task
 
-    def run(self):
+    def run(self) -> None:
         """Executes the schedule, dispatching the event."""
         # Dispatch the event using explicit dispatch
         if not self.actor:
@@ -188,7 +186,7 @@ class Schedule(TimeStampedModel):
             # Updates the counter
             Schedule.objects.filter(pk=self.pk).update(counter=F("counter") + 1)
 
-    def update_task(self):
+    def update_task(self) -> None:
         """Syncs the periodic tasks from Celery with the schedule data."""
         # Gets or create task
         if self.task:
@@ -206,7 +204,7 @@ class Schedule(TimeStampedModel):
                     )
                 self.task.interval.save()
             # Updates cron values
-            cron_fields = [
+            cron_fields: list = [
                 "minute",
                 "hour",
                 "day_of_week",
@@ -231,7 +229,7 @@ class Schedule(TimeStampedModel):
         self.task.delete()
         return super().delete(**kwargs)
 
-    def save(self, **kwargs):
+    def save(self, **kwargs) -> None:
         self.clean()
         super().save(**kwargs)
         # Creation/update of the task after the save of the model, to ensure

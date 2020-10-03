@@ -1,12 +1,16 @@
-from typing import Any, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import translation
 
-from snitch.settings import NOTIFICATION_MODEL
 from snitch.constants import DEFAULT_CONFIG
+from snitch.settings import NOTIFICATION_MODEL
+
+if TYPE_CHECKING:
+    from snitch.handlers import EventHandler
+    from snitch.models import Event
 
 
 def get_notification_model():
@@ -71,11 +75,11 @@ def extract_actor_trigger_target(config: Dict, args: Tuple, kwargs: Dict) -> Tup
     return actor, trigger, target
 
 
-def send_event_to_user(event: "Event", user: "User") -> None:
+def send_event_to_user(event: "Event", user) -> None:
     """Takes the event and sends it to the user using the backend of the event
     handler.
     """
-    handler: EventHandler = event.handler()
+    handler: "EventHandler" = event.handler()
     if handler.should_send:
         # Activate language for translations
         if settings.USE_I18N:

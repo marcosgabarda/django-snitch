@@ -5,8 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 class SimpleSnitchConfig(AppConfig):
     """Simple AppConfig which does not do automatic discovery."""
 
-    name = "snitch"
-    verbose_name = _("Snitch")
+    name: str = "snitch"
+    verbose_name: str = _("Snitch")
 
 
 class SnitchConfig(SimpleSnitchConfig):
