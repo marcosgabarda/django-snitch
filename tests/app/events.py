@@ -3,7 +3,7 @@ import io
 from django.contrib.auth import get_user_model
 
 import snitch
-from snitch.backends import PushNotificationBackend, EmailNotificationBackend
+from snitch.backends import EmailNotificationBackend, PushNotificationBackend
 
 ACTIVATED_EVENT = "activated"
 CONFIRMED_EVENT = "confirmed"

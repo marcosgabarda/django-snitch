@@ -1,6 +1,6 @@
 from factory import DjangoModelFactory
 
-from tests.app.models import Stuff, Target, Trigger, Actor, OtherStuff
+from tests.app.models import Actor, OtherStuff, Stuff, Target, Trigger
 
 
 class StuffFactory(DjangoModelFactory):
