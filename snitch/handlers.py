@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from snitch.exceptions import HandlerError
 from snitch.helpers import (
