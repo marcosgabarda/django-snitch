@@ -47,7 +47,7 @@ class TemplateEmailMessage:
             self.to = [to]
         else:
             self.to = to
-        self.subject = "%s" % self.default_subject if subject is None else subject
+        self.subject = self.default_subject if subject is None else subject
         self.from_email = self.default_from_email if from_email is None else from_email
         self.reply_to = self.default_reply_to if reply_to is None else reply_to
         self.bcc = self.default_bcc if bcc is None else bcc
@@ -109,6 +109,7 @@ class TemplateEmailMessage:
         if self.use_i18n and settings.USE_I18N:
             language = self.get_language()
             translation.activate(language)
+        self.subject = "%s" % self.subject
         context = self.get_context()
         message = render_to_string(self.template_name, context, using="django")
         message_txt = message.replace("\n", "")
