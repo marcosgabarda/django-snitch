@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Type, Union
+from typing import TYPE_CHECKING, Dict, Optional, Type, Union
 
 from django.contrib.auth import get_user_model
 
@@ -9,6 +9,14 @@ from snitch.settings import ENABLED_SEND_NOTIFICATIONS
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User as AuthUser
+    from django.db import models
+    from push_notifications.models import APNSDevice, GCMDevice
+
+    from snitch.handlers import EventHandler
+    from snitch.models import Event, Notification
+
 
 class AbstractBackend:
     """Abstract backend class for notifications."""
@@ -17,7 +25,7 @@ class AbstractBackend:
         self,
         notification: Optional["Notification"] = None,
         event: Optional["Event"] = None,
-        user: Optional[User] = None,
+        user: Optional["AuthUser"] = None,
     ):
         assert notification is not None or (
             event is not None and user is not None
@@ -25,12 +33,12 @@ class AbstractBackend:
 
         self.notification: Optional["Notification"] = notification
         self.event: Optional["Event"] = event
-        self.user: Optional[User] = user
+        self.user: Optional["AuthUser"] = user
         if self.notification:
             self.handler: "EventHandler" = self.notification.handler()
             self.user = self.notification.user
         elif self.event:
-            self.handler: "EventHandler" = self.event.handler()
+            self.handler = self.event.handler()
 
     def send(self):
         """A subclass should to implement the send method."""
@@ -49,12 +57,16 @@ class PushNotificationBackend(AbstractBackend):
         self.action_id: str = self.handler.get_action_id()
 
     def extra_data(self) -> Dict:
-        """Gets the extra data to add to the push, to be hooked if needed."""
+        """Gets the extra data to add to the push, to be hooked if needed. It tries to 
+        get an initial dict from the handler.
+        """
+        if hasattr(self.handler, "extra_data"):
+            return self.handler.extra_data()
         return {}
 
     def _get_devices(
         self, device_class: Union[Type["GCMDevice"], Type["APNSDevice"]]
-    ) -> "QuerySet":
+    ) -> "models.QuerySet":
         """Gets the devices using the given class."""
         return device_class.objects.filter(user=self.user)
 
@@ -88,8 +100,8 @@ class PushNotificationBackend(AbstractBackend):
         # While push_notifications is not working with Django 3.0, we are ignoring
         # the push sending
         try:
-            from push_notifications.models import APNSDevice
             from push_notifications.apns import APNSError
+            from push_notifications.models import APNSDevice
         except ImportError:
             return
 
@@ -128,7 +140,7 @@ class EmailNotificationBackend(AbstractBackend):
         """Check if the email can use async, False by default, because the notification
         is already sent using a task."""
         return (
-            self.handler.template_email_async
+            self.handler.template_email_async  # type: ignore
             if hasattr(self.handler, "template_email_async")
             else False
         )

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from snitch.models import EventType, Event, Notification
+from snitch.models import Event, EventType, Notification
 
 
 def notify_action(modeladmin, request, queryset):
@@ -11,7 +11,7 @@ def notify_action(modeladmin, request, queryset):
     modeladmin.message_user(request, _("Events notified!"))
 
 
-notify_action.short_description = _("Notify events")
+notify_action.short_description = _("Notify events")  # type: ignore
 
 
 def send_action(modeladmin, request, queryset):
@@ -21,7 +21,7 @@ def send_action(modeladmin, request, queryset):
     modeladmin.message_user(request, _("Notifications sent!"))
 
 
-send_action.short_description = _("Send notifications")
+send_action.short_description = _("Send notifications")  # type: ignore
 
 
 @admin.register(EventType)

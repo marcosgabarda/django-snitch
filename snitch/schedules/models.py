@@ -1,5 +1,4 @@
 import warnings
-from typing import Optional
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -14,14 +13,14 @@ from snitch.exceptions import SnitchError
 
 try:
     from django_celery_beat.models import (
-        PeriodicTask,
-        CrontabSchedule,
         PERIOD_CHOICES,
+        CrontabSchedule,
         IntervalSchedule,
+        PeriodicTask,
     )
 except ImportError:
     raise SnitchError(
-        "The snitch.schedules app requieres the django-celery-beat package."
+        "The snitch.schedules app requires the django-celery-beat package."
     )
 
 

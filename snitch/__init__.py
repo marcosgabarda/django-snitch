@@ -6,10 +6,9 @@ notifications.
 """
 from django.utils.module_loading import autodiscover_modules
 
-from snitch.decorators import register, dispatch
-from snitch.handlers import manager, EventHandler
+from snitch.decorators import dispatch, register
+from snitch.handlers import EventHandler, manager
 from snitch.helpers import explicit_dispatch, get_notification_model
-
 
 __all__ = [
     "register",
@@ -20,7 +19,7 @@ __all__ = [
     "get_notification_model",
 ]
 
-__version__ = "1.7.4"
+__version__ = "1.7.5"
 
 
 def autodiscover():

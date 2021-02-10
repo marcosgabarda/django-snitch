@@ -3,11 +3,16 @@
 History
 -------
 
+1.7.5 (2021-02-10)
+++++++++++++++++++
+
+* Better type checking
+* Added extra data method por EventHandler
+
 1.7.4 (2020-09-27)
 ++++++++++++++++++
 
 * Added reply_to, bcc and cc to emails
-
 
 1.7.3 (2020-08-31)
 ++++++++++++++++++

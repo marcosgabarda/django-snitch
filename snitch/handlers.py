@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -11,6 +11,11 @@ from snitch.helpers import (
     get_notification_model,
     send_event_to_user,
 )
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+
+    from snitch.models import Event, Notification
 
 
 class EventHandler:
@@ -109,11 +114,11 @@ class EventManager:
     """
 
     def __init__(self):
-        self._registry: Dict[str, Type[EventHandler]] = {}
+        self._registry: Dict[str, Type["EventHandler"]] = {}
         self._verbs: Dict = {}
 
     def register(
-        self, verb: str, handler: Type[EventHandler], verbose: Optional[str] = None
+        self, verb: str, handler: Type["EventHandler"], verbose: Optional[str] = None
     ):
         """Register a handler with a verb, and the verbose form of the verb."""
         if not issubclass(handler, EventHandler):

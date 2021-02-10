@@ -1,4 +1,4 @@
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 
 from celery.task import task
 from django.core.mail import EmailMultiAlternatives
@@ -17,6 +17,7 @@ def send_notification_task(notification_pk: int) -> Optional[bool]:
     except Notification.DoesNotExist:
         return False
     notification.send(send_async=False)
+    return True
 
 
 @task(serializer="json")
@@ -29,3 +30,4 @@ def send_email_asynchronously(
     )
     email.attach_alternative(message, "text/html")
     email.send()
+    return True

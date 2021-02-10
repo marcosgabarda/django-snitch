@@ -1,6 +1,5 @@
-from django.db.models import F
-
 from celery.task import task
+from django.db.models import F
 
 
 @task(serializer="json")
