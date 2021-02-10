@@ -14,6 +14,7 @@ install:
   - poetry config virtualenvs.create false && poetry install -n --no-ansi
 script:
   - black --check .
+  - mypy --ignore-missing-imports snitch
   - pytest --cov snitch
 after_success:
   - coveralls

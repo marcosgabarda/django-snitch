@@ -2,9 +2,16 @@ import logging
 from typing import TYPE_CHECKING, Dict, Optional, Type, Union
 
 from django.contrib.auth import get_user_model
+from django.db import models
 
 from snitch.emails import TemplateEmailMessage
 from snitch.settings import ENABLED_SEND_NOTIFICATIONS
+
+if TYPE_CHECKING:
+    from push_notifications.models import APNSDevice, GCMDevice
+
+    from snitch.handlers import EventHandler
+    from snitch.models import Event, Notification
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -57,12 +64,10 @@ class PushNotificationBackend(AbstractBackend):
         self.action_id: str = self.handler.get_action_id()
 
     def extra_data(self) -> Dict:
-        """Gets the extra data to add to the push, to be hooked if needed. It tries to 
+        """Gets the extra data to add to the push, to be hooked if needed. It tries to
         get an initial dict from the handler.
         """
-        if hasattr(self.handler, "extra_data"):
-            return self.handler.extra_data()
-        return {}
+        return self.handler.get_extra_data()
 
     def _get_devices(
         self, device_class: Union[Type["GCMDevice"], Type["APNSDevice"]]

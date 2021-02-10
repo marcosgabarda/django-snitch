@@ -8,6 +8,8 @@ History
 
 * Better type checking
 * Added extra data method por EventHandler
+* Replace ugettext by gettext 
+* Fix: cast email subject to str in send method 
 
 1.7.4 (2020-09-27)
 ++++++++++++++++++

@@ -6,10 +6,11 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from model_utils.models import TimeStampedModel
 
 from snitch import EventHandler
+from snitch.backends import AbstractBackend
 from snitch.handlers import manager
 
 User = get_user_model()
@@ -30,8 +31,8 @@ class EventType(models.Model):
         verbose_name_plural = _("event types")
         ordering = ("verb",)
 
-    def __str__(self):
-        return str(self.verb)
+    def __str__(self) -> str:
+        return self.verb
 
 
 class Event(TimeStampedModel):
@@ -92,15 +93,15 @@ class Event(TimeStampedModel):
         verbose_name = _("event")
         verbose_name_plural = _("events")
 
-    def __str__(self):
+    def __str__(self) -> str:
         handler = self.handler()
         return handler.get_text()
 
-    def handler(self, notification: "Notification" = None):
+    def handler(self, notification: "Notification" = None) -> EventHandler:
         """Gets the handler for the event."""
         return manager.handler(self, notification=notification)
 
-    def notify(self):
+    def notify(self) -> None:
         """Creates the notifications associated to this action, ."""
         handler = self.handler()
         if handler.should_notify:
@@ -108,11 +109,10 @@ class Event(TimeStampedModel):
             self.notified = True
             self.save()
 
-    def save(self, *args, **kwargs):
-        result = super().save(*args, **kwargs)
+    def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
         if not self.notified:
             self.notify()
-        return result
 
 
 class AbstractNotification(TimeStampedModel):
@@ -137,8 +137,8 @@ class AbstractNotification(TimeStampedModel):
         ordering = ("-created",)
         abstract = True
 
-    def __str__(self):
-        return "'{}' to {}".format(str(self.event), str(self.user))
+    def __str__(self) -> str:
+        return f"'{str(self.event)}' to {str(self.user)}"
 
     def _task_kwargs(self, handler: EventHandler) -> Dict:
         """Gets the kwargs for celery task, used in apply_async method."""
@@ -149,13 +149,13 @@ class AbstractNotification(TimeStampedModel):
             kwargs["countdown"] = delay
         return kwargs
 
-    def handler(self):
+    def handler(self) -> EventHandler:
         """Gets the handler for the notification."""
         return self.event.handler(notification=self)
 
-    def send(self, send_async: bool = False):
+    def send(self, send_async: bool = False) -> None:
         """Sends a push notification to the devices of the user."""
-        from .tasks import send_notification_task
+        from snitch.tasks import send_notification_task
 
         handler: EventHandler = self.event.handler()
         if handler.should_send:
@@ -169,14 +169,14 @@ class AbstractNotification(TimeStampedModel):
                     language = handler.get_language(self.user)
                     translation.activate(language)
                 for backend_class in handler.notification_backends:
-                    backend = backend_class(self)
+                    backend: AbstractBackend = backend_class(self)
                     backend.send()
                 self.sent = True
                 self.save()
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         """Overwrite to sending push notifications when saving."""
-        is_insert = self._state.adding
+        is_insert: bool = self._state.adding
         super().save(*args, **kwargs)
         if is_insert:
             self.send()
@@ -186,4 +186,4 @@ class Notification(AbstractNotification):
     """Initial notification model that can be swappable."""
 
     class Meta(AbstractNotification.Meta):
-        swappable = "SNITCH_NOTIFICATION_MODEL"
+        swappable: str = "SNITCH_NOTIFICATION_MODEL"

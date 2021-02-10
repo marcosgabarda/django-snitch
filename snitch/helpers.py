@@ -9,8 +9,6 @@ from snitch.constants import DEFAULT_CONFIG
 from snitch.settings import NOTIFICATION_MODEL
 
 if TYPE_CHECKING:
-    from django.contrib.auth.models import User
-
     from snitch.handlers import EventHandler
     from snitch.models import Event
 
@@ -77,7 +75,7 @@ def extract_actor_trigger_target(config: Dict, args: Tuple, kwargs: Dict) -> Tup
     return actor, trigger, target
 
 
-def send_event_to_user(event: "Event", user: "User") -> None:
+def send_event_to_user(event: "Event", user) -> None:
     """Takes the event and sends it to the user using the backend of the event
     handler.
     """
