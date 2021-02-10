@@ -3,13 +3,14 @@
 History
 -------
 
-1.7.5 (2021-02-10)
+1.8.0 (2021-02-10)
 ++++++++++++++++++
 
-* Better type checking
-* Added extra data method por EventHandler
-* Replace ugettext by gettext 
-* Fix: cast email subject to str in send method 
+* Fix: Replace ugettext by gettext.
+* Fix: Cast email subject to str in send method.
+* Feat: Better type checking.
+* Feat: Added extra data method por EventHandler.
+* Feat: Added system to handle individual sending or batch sending for pushes.
 
 1.7.4 (2020-09-27)
 ++++++++++++++++++

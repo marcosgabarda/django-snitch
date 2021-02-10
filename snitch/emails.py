@@ -126,7 +126,10 @@ class AdminsTemplateEmailMessage(TemplateEmailMessage):
     """Emails only for admins."""
 
     def __init__(
-        self, subject: str = None, context: Dict = None, from_email: str = None
+        self,
+        subject: Optional[str] = None,
+        context: Optional[Dict] = None,
+        from_email: Optional[str] = None,
     ):
         to: Union[str, List] = [a[1] for a in settings.ADMINS]
         super().__init__(to, subject=subject, context=context, from_email=from_email)
@@ -138,5 +141,5 @@ class ManagersTemplateEmailMessage(TemplateEmailMessage):
     def __init__(
         self, subject: str = None, context: Dict = None, from_email: str = None
     ):
-        to: Union[str, List] = [m[1] for m in settings.MANAGERS]
+        to: Union[str, List] = [manager[1] for manager in settings.MANAGERS]
         super().__init__(to, subject=subject, context=context, from_email=from_email)

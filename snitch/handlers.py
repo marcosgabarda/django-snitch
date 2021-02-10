@@ -88,7 +88,7 @@ class EventHandler:
         return settings.LANGUAGE_CODE
 
     def get_extra_data(self) -> Dict:
-        """Adds extra meta data to the notification."""
+        """Adds extra meta data to the backend."""
         return {}
 
     def audience(self) -> QuerySet:

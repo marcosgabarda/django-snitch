@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Dict, Optional, Type, Union
+from typing import TYPE_CHECKING, Callable, Dict, Optional, Tuple, Type, Union
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -55,13 +55,14 @@ class AbstractBackend:
 class PushNotificationBackend(AbstractBackend):
     """A backend class to send push notifications depending on the platform."""
 
+    default_batch_sending: bool = True
+
     def __init__(self, *args, **kwargs):
         """Adds attributes for the push notification from the handler."""
         super().__init__(*args, **kwargs)
-        self.title: str = self.handler.get_title()
-        self.text: str = self.handler.get_text()
         self.action_type: str = self.handler.get_action_type()
         self.action_id: str = self.handler.get_action_id()
+        self.batch_sending = kwargs.get("batch_sending", self.default_batch_sending)
 
     def extra_data(self) -> Dict:
         """Gets the extra data to add to the push, to be hooked if needed. It tries to
@@ -69,62 +70,111 @@ class PushNotificationBackend(AbstractBackend):
         """
         return self.handler.get_extra_data()
 
-    def _get_devices(
+    def get_devices(
         self, device_class: Union[Type["GCMDevice"], Type["APNSDevice"]]
     ) -> "models.QuerySet":
         """Gets the devices using the given class."""
         return device_class.objects.filter(user=self.user)
 
-    def _send_gcm(self):
-        # While push_notifications is not working with Django 3.0, we are ignoring
-        # the push sending
-        try:
-            from push_notifications.gcm import GCMError
-            from push_notifications.models import GCMDevice
-        except ImportError:
-            return
+    def pre_send(
+        self, device: Optional[Union["GCMDevice", "APNSDevice"]] = None
+    ) -> None:
+        """Actions previous to build the message and send, like activate translations if
+        needed.
+        """
+        return None
 
-        devices = self._get_devices(GCMDevice)
-        message = self.text
+    def post_send(
+        self, device: Optional[Union["GCMDevice", "APNSDevice"]] = None
+    ) -> None:
+        """Actions post to sent the message, like deactivate translations if
+        needed.
+        """
+        return None
+
+    def _build_gcm_message(self) -> Tuple[str, Dict]:
+        """Creates the message for GCM."""
+        message: str = self.handler.get_text()
         extra = {}
-        if self.title:
-            extra["title"] = self.title
+        title: str = self.handler.get_title()
+        if title:
+            extra["title"] = title
         if self.action_type:
             extra["action_type"] = self.action_type
         if self.action_id:
             extra["action_id"] = self.action_id
-        if self.extra_data():
-            extra.update(self.extra_data())
+        extra_data = self.extra_data()
+        if extra_data:
+            extra.update(extra_data)
+        return message, extra
 
-        try:
-            devices.send_message(message=message, extra=extra)
-        except GCMError:
-            logger.warning("Error sending GCM push message")
+    def _build_apns_message(self) -> Tuple[Union[str, Dict], Dict]:
+        """Creates the message for APNS."""
+        text: str = self.handler.get_text()
+        message: Union[str, Dict] = text
+        extra: Dict = {}
+        title: str = self.handler.get_title()
+        if title:
+            message = {"title": title, "body": text}
+        if self.action_type:
+            extra["action_type"] = self.action_type
+        if self.action_id:
+            extra["action_id"] = self.action_id
+        extra_data = self.extra_data()
+        if extra_data:
+            extra.update(extra_data)
+        return message, extra
 
-    def _send_apns(self):
-        # While push_notifications is not working with Django 3.0, we are ignoring
-        # the push sending
+    def _send_to_devices(self, devices: "models.QuerySet", building_method: Callable):
+        """Sends a batch of pushes."""
         try:
             from push_notifications.apns import APNSError
+            from push_notifications.gcm import GCMError
+        except ImportError:
+            return None
+        if self.batch_sending:
+            self.pre_send()
+            message, extra = building_method()
+            try:
+                devices.send_message(message=message, extra=extra)
+            except GCMError:
+                logger.warning("Error sending a batch GCM push message")
+            except APNSError:
+                logger.warning("Error sending a batch APNS push message")
+            self.post_send()
+        else:
+            for device in devices:
+                self.pre_send(device=device)
+                message, extra = building_method()
+                try:
+                    device.send_message(message=message, extra=extra)
+                except GCMError:
+                    logger.warning("Error sending a single GCM push message")
+                except APNSError:
+                    logger.warning("Error sending a single APNS push message")
+                self.post_send(device=device)
+
+        return None
+
+    def _send_gcm(self):
+        """Send to GCM devices."""
+        try:
+            from push_notifications.models import GCMDevice
+        except ImportError:
+            return None
+        devices = self.get_devices(GCMDevice)
+        self._send_to_devices(devices=devices, building_method=self._build_gcm_message)
+        return None
+
+    def _send_apns(self):
+        """Send to APNS devices."""
+        try:
             from push_notifications.models import APNSDevice
         except ImportError:
-            return
-
-        devices = self._get_devices(APNSDevice)
-        message = self.text
-        extra = {}
-        if self.title:
-            message = {"title": self.title, "body": self.text}
-        if self.action_type:
-            extra["action_type"] = self.action_type
-        if self.action_id:
-            extra["action_id"] = self.action_id
-        if self.extra_data():
-            extra.update(self.extra_data())
-        try:
-            devices.send_message(message=message, extra=extra)
-        except APNSError:
-            logger.warning("Error sending APNS push message")
+            return None
+        devices = self.get_devices(APNSDevice)
+        self._send_to_devices(devices=devices, building_method=self._build_apns_message)
+        return None
 
     def send(self):
         """Send message for each platform."""

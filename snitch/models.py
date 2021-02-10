@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -9,9 +9,11 @@ from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from model_utils.models import TimeStampedModel
 
-from snitch import EventHandler
-from snitch.backends import AbstractBackend
 from snitch.handlers import manager
+
+if TYPE_CHECKING:
+    from snitch import EventHandler
+    from snitch.backends import AbstractBackend
 
 User = get_user_model()
 
@@ -97,7 +99,7 @@ class Event(TimeStampedModel):
         handler = self.handler()
         return handler.get_text()
 
-    def handler(self, notification: "Notification" = None) -> EventHandler:
+    def handler(self, notification: "Notification" = None) -> "EventHandler":
         """Gets the handler for the event."""
         return manager.handler(self, notification=notification)
 
@@ -140,7 +142,7 @@ class AbstractNotification(TimeStampedModel):
     def __str__(self) -> str:
         return f"'{str(self.event)}' to {str(self.user)}"
 
-    def _task_kwargs(self, handler: EventHandler) -> Dict:
+    def _task_kwargs(self, handler: "EventHandler") -> Dict:
         """Gets the kwargs for celery task, used in apply_async method."""
         kwargs = {}
         # Delay from event handler
@@ -149,7 +151,7 @@ class AbstractNotification(TimeStampedModel):
             kwargs["countdown"] = delay
         return kwargs
 
-    def handler(self) -> EventHandler:
+    def handler(self) -> "EventHandler":
         """Gets the handler for the notification."""
         return self.event.handler(notification=self)
 
@@ -157,7 +159,7 @@ class AbstractNotification(TimeStampedModel):
         """Sends a push notification to the devices of the user."""
         from snitch.tasks import send_notification_task
 
-        handler: EventHandler = self.event.handler()
+        handler: "EventHandler" = self.event.handler()
         if handler.should_send:
             if send_async:
                 send_notification_task.apply_async(
@@ -169,7 +171,7 @@ class AbstractNotification(TimeStampedModel):
                     language = handler.get_language(self.user)
                     translation.activate(language)
                 for backend_class in handler.notification_backends:
-                    backend: AbstractBackend = backend_class(self)
+                    backend: "AbstractBackend" = backend_class(self)
                     backend.send()
                 self.sent = True
                 self.save()
