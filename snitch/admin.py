@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-from snitch.models import EventType, Event, Notification
+from snitch.models import Event, EventType, Notification
 
 
 def notify_action(modeladmin, request, queryset):

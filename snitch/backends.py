@@ -2,10 +2,10 @@ import logging
 from typing import TYPE_CHECKING, Dict, Optional, Type, Union
 
 from django.contrib.auth import get_user_model
+from django.db import models
 
 from snitch.emails import TemplateEmailMessage
 from snitch.settings import ENABLED_SEND_NOTIFICATIONS
-from django.db import models
 
 if TYPE_CHECKING:
     from push_notifications.models import APNSDevice, GCMDevice

@@ -1,5 +1,4 @@
 import locale
-from tests.app.emails import WelcomeEmail
 import warnings
 
 from django.test import TestCase
@@ -9,6 +8,7 @@ import snitch
 from snitch.models import Event
 from snitch.schedules.models import Schedule
 from snitch.schedules.tasks import clean_scheduled_tasks, execute_schedule_task
+from tests.app.emails import WelcomeEmail
 from tests.app.events import (
     ACTIVATED_EVENT,
     CONFIRMED_EVENT,

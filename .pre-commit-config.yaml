@@ -1,10 +1,18 @@
 repos:
-- repo: https://github.com/ambv/black
-  rev: stable
-  hooks:
-  - id: black
-    language_version: python3
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: ""
-  hooks:
-  - id: mypy
+  - repo: "https://github.com/pycqa/isort"
+    rev: 5.7.0
+    hooks:
+      - id: isort
+        args:
+          - "--profile"
+          - black
+        name: isort
+  - repo: "https://github.com/ambv/black"
+    rev: 20.8b1
+    hooks:
+      - id: black
+        language_version: python3
+  - repo: "https://github.com/pre-commit/mirrors-mypy"
+    rev: ""
+    hooks:
+      - id: mypy

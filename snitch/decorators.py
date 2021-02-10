@@ -42,8 +42,9 @@ def dispatch(
 
     """
     from django.contrib.contenttypes.models import ContentType
-    from snitch.models import Event, EventType
+
     from snitch.handlers import manager
+    from snitch.models import Event, EventType
 
     def _decorator(func: Callable):
         """Decorator itself."""

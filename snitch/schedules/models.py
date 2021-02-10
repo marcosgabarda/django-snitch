@@ -1,13 +1,14 @@
 import warnings
 
-import snitch.handlers
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import F
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from model_utils.models import TimeStampedModel
+
+import snitch.handlers
 from snitch.exceptions import SnitchError
 
 try:
