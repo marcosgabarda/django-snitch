@@ -188,6 +188,24 @@ class SnitchTestCase(TestCase):
             email.send(use_async=False)
             self.assertEqual(email.cc, ["test@test.com"])
             self.assertEqual(email.bcc, ["test@tost.com"])
+            self.assertIsNone(email.reply_to)
+            exception = False
+        except Exception:
+            exception = True
+        self.assertFalse(exception)
+
+    def test_send_email_with_non_list_addresses(self):
+        try:
+            email = WelcomeEmail(
+                to="test@example.com",
+                cc="test@test.com",
+                bcc="test@tost.com",
+                context={},
+            )
+            email.send(use_async=False)
+            self.assertEqual(email.cc, ["test@test.com"])
+            self.assertEqual(email.bcc, ["test@tost.com"])
+            self.assertIsNone(email.reply_to)
             exception = False
         except Exception:
             exception = True
