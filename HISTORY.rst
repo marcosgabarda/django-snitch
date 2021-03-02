@@ -3,6 +3,11 @@
 History
 -------
 
+1.8.1 (2021-03-02)
+++++++++++++++++++
+
+* Fix: take into account cc, bcc and reply_to in async emails + fix typing.
+
 1.8.0 (2021-02-10)
 ++++++++++++++++++
 
