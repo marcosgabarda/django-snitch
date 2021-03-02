@@ -20,9 +20,6 @@ class TemplateEmailMessage:
     default_template_name: str = ""
     default_subject: str = ""
     default_from_email: str = ""
-    default_reply_to: List[str] = [""]
-    default_bcc: List[str] = [""]
-    default_cc: List[str] = [""]
     fake: bool = False
     use_i18n: bool = False
 
@@ -34,24 +31,28 @@ class TemplateEmailMessage:
         from_email: Optional[str] = None,
         attaches: Optional[List] = None,
         template_name: Optional[str] = None,
-        reply_to: Optional[List] = None,
-        bcc: Optional[List] = None,
-        cc: Optional[List] = None,
+        reply_to: Optional[Union[str, List]] = None,
+        bcc: Optional[Union[str, List]] = None,
+        cc: Optional[Union[str, List]] = None,
     ):
         self.template_name = (
             self.default_template_name if template_name is None else template_name
         )
         if not self.template_name:
             warnings.warn("You have to specify the template name")
-        if not isinstance(to, list) and not isinstance(to, tuple):
-            self.to = [to]
-        else:
-            self.to = to
+        # Ensure these attributes are lists or tuples
+        for attr_name in ["to", "reply_to", "cc", "bcc"]:
+            attr = eval(attr_name)
+            if (
+                attr is not None
+                and not isinstance(attr, list)
+                and not isinstance(attr, tuple)
+            ):
+                setattr(self, attr_name, [attr])
+            else:
+                setattr(self, attr_name, attr)
         self.subject = self.default_subject if subject is None else subject
         self.from_email = self.default_from_email if from_email is None else from_email
-        self.reply_to = self.default_reply_to if reply_to is None else reply_to
-        self.bcc = self.default_bcc if bcc is None else bcc
-        self.cc = self.default_bcc if cc is None else cc
         self.attaches = [] if attaches is None else attaches
         self.default_context = {} if context is None else context
 
