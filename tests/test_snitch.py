@@ -1,4 +1,3 @@
-import locale
 import warnings
 
 from django.test import TestCase
@@ -173,6 +172,22 @@ class SnitchTestCase(TestCase):
         try:
             email = WelcomeEmail(to="test@example.com", context={})
             email.send(use_async=False)
+            exception = False
+        except Exception:
+            exception = True
+        self.assertFalse(exception)
+
+    def test_send_email_with_cc_and_bcc(self):
+        try:
+            email = WelcomeEmail(
+                to="test@example.com",
+                cc=["test@test.com"],
+                bcc=["test@tost.com"],
+                context={},
+            )
+            email.send(use_async=False)
+            self.assertEqual(email.cc, ["test@test.com"])
+            self.assertEqual(email.bcc, ["test@tost.com"])
             exception = False
         except Exception:
             exception = True

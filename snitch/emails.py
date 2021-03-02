@@ -20,9 +20,9 @@ class TemplateEmailMessage:
     default_template_name: str = ""
     default_subject: str = ""
     default_from_email: str = ""
-    default_reply_to: str = ""
-    default_bcc: str = ""
-    default_cc: str = ""
+    default_reply_to: List[str] = [""]
+    default_bcc: List[str] = [""]
+    default_cc: List[str] = [""]
     fake: bool = False
     use_i18n: bool = False
 
@@ -34,9 +34,9 @@ class TemplateEmailMessage:
         from_email: Optional[str] = None,
         attaches: Optional[List] = None,
         template_name: Optional[str] = None,
-        reply_to: Optional[str] = None,
-        bcc: Optional[str] = None,
-        cc: Optional[str] = None,
+        reply_to: Optional[List] = None,
+        bcc: Optional[List] = None,
+        cc: Optional[List] = None,
     ):
         self.template_name = (
             self.default_template_name if template_name is None else template_name
@@ -75,7 +75,14 @@ class TemplateEmailMessage:
     def async_send(self, message, message_txt):
         if not self.fake:
             send_email_asynchronously.delay(
-                self.subject, message_txt, message, self.from_email, self.to
+                self.subject,
+                message_txt,
+                message,
+                self.from_email,
+                self.to,
+                self.cc,
+                self.bcc,
+                self.reply_to,
             )
             if self.attaches:
                 warnings.warn(
