@@ -3,6 +3,11 @@
 History
 -------
 
+1.8.2 (2021-03-02)
+++++++++++++++++++
+
+* Fix: ensure "to", "reply_to", "cc" and "bcc" are valid email lists or None.
+
 1.8.1 (2021-03-02)
 ++++++++++++++++++
 
