@@ -23,11 +23,24 @@ def send_notification_task(notification_pk: int) -> Optional[bool]:
 
 @task(serializer="json")
 def send_email_asynchronously(
-    subject: str, message_txt: str, message: str, from_email: str, to: Union[List, str]
+    subject: str,
+    message_txt: str,
+    message: str,
+    from_email: str,
+    to: Union[List, str],
+    cc: Optional[List],
+    bcc: Optional[List],
+    reply_to: Optional[List],
 ):
     """Sends an email as a asynchronous task."""
     email = EmailMultiAlternatives(
-        subject=subject, body=message_txt, from_email=from_email, to=to
+        subject=subject,
+        body=message_txt,
+        from_email=from_email,
+        to=to,
+        cc=cc,
+        bcc=bcc,
+        reply_to=reply_to,
     )
     email.attach_alternative(message, "text/html")
     email.send()
