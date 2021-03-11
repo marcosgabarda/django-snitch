@@ -3,6 +3,11 @@
 History
 -------
 
+1.8.3 (2021-03-11)
+++++++++++++++++++
+
+* Fix: notifications on save can be async or sync
+
 1.8.2 (2021-03-02)
 ++++++++++++++++++
 

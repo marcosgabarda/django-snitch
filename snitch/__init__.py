@@ -19,7 +19,7 @@ __all__ = [
     "get_notification_model",
 ]
 
-__version__ = "1.8.2"
+__version__ = "1.8.3"
 
 
 def autodiscover():

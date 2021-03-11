@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from model_utils.models import TimeStampedModel
 
 from snitch.handlers import manager
+from snitch.settings import NOTIFICATION_EAGER
 
 if TYPE_CHECKING:
     from snitch import EventHandler
@@ -181,7 +182,7 @@ class AbstractNotification(TimeStampedModel):
         is_insert: bool = self._state.adding
         super().save(*args, **kwargs)
         if is_insert:
-            self.send()
+            self.send(send_async=NOTIFICATION_EAGER)
 
 
 class Notification(AbstractNotification):
