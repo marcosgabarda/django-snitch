@@ -3,6 +3,11 @@
 History
 -------
 
+2.0.0 (2021-xx-xx)
+++++++++++++++++++
+
+* BREAKING CHANGE: migrate to `Celery 5 <https://docs.celeryproject.org/en/stable/whatsnew-5.0.html#upgrading-from-celery-4-x>`_
+
 1.8.3 (2021-03-11)
 ++++++++++++++++++
 
