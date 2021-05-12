@@ -24,3 +24,6 @@ __version__ = "1.8.3"
 
 def autodiscover():
     autodiscover_modules("events", register_to=manager)
+
+
+default_app_config = "snitch.apps.SnitchConfig"
