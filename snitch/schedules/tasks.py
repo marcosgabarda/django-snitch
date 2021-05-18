@@ -1,10 +1,10 @@
 from typing import Optional
 
-from celery.task import task
+from celery import shared_task
 from django.db.models import F
 
 
-@task(serializer="json")
+@shared_task(serializer="json")
 def execute_schedule_task(schedule_id: int) -> Optional[int]:
     from snitch.schedules.models import Schedule
 
@@ -16,7 +16,7 @@ def execute_schedule_task(schedule_id: int) -> Optional[int]:
     return schedule_id
 
 
-@task(serializer="json")
+@shared_task(serializer="json")
 def clean_scheduled_tasks() -> None:
     """Task to clean one shot periodic tasks. Note that this can be done better
     using the proper attributes for PeriodicTask.
