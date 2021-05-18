@@ -1,12 +1,12 @@
 from typing import List, Optional, Union
 
-from celery.task import task
+from celery import shared_task
 from django.core.mail import EmailMultiAlternatives
 
 from snitch.helpers import get_notification_model
 
 
-@task(serializer="json")
+@shared_task(serializer="json")
 def send_notification_task(notification_pk: int) -> Optional[bool]:
     """A Celery task to send push notifications related with a given Notification
     model."""
@@ -21,7 +21,7 @@ def send_notification_task(notification_pk: int) -> Optional[bool]:
     return None
 
 
-@task(serializer="json")
+@shared_task(serializer="json")
 def send_email_asynchronously(
     subject: str,
     message_txt: str,
