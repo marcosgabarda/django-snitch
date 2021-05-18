@@ -182,7 +182,7 @@ class AbstractNotification(TimeStampedModel):
         is_insert: bool = self._state.adding
         super().save(*args, **kwargs)
         if is_insert:
-            self.send(send_async=not NOTIFICATION_EAGER)
+            self.send(send_async=NOTIFICATION_EAGER)
 
 
 class Notification(AbstractNotification):
