@@ -60,9 +60,7 @@ class Event(TimeStampedModel):
     actor_object_id = models.PositiveIntegerField(_("actor object id"), null=True)
     actor = GenericForeignKey("actor_content_type", "actor_object_id")
 
-    verb = models.CharField(
-        _("verb"), max_length=255, null=True, choices=manager.choices()
-    )
+    verb = models.CharField(_("verb"), max_length=255, null=True)
 
     trigger_content_type = models.ForeignKey(
         ContentType,

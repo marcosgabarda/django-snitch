@@ -3,11 +3,16 @@
 History
 -------
 
+2.0.1 (2021-06-10)
+++++++++++++++++++
+
+* Fix: Removed choices from event verb to solve migrations when a verb is added.
+
 2.0.0 (2021-05-18)
 ++++++++++++++++++
 
 * BREAKING CHANGE: migrate to `Celery 5 <https://docs.celeryproject.org/en/stable/whatsnew-5.0.html#upgrading-from-celery-4-x>`_
-* * Fix: eager condition.
+* Fix: eager condition.
 
 1.8.3 (2021-03-11)
 ++++++++++++++++++

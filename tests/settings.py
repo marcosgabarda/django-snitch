@@ -32,6 +32,7 @@ TEMPLATES = [
         },
     }
 ]
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # DJANGO PUSH NOTIFICATIONS
 # ------------------------------------------------------------------------------
