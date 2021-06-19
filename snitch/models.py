@@ -24,9 +24,7 @@ class EventType(models.Model):
     enable or disable the generation of notifications.
     """
 
-    verb = models.CharField(
-        max_length=255, null=True, choices=manager.choices(), unique=True
-    )
+    verb = models.CharField(max_length=255, null=True, unique=True)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
 
     class Meta:
