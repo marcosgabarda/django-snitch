@@ -26,8 +26,8 @@ class EventHandler:
     dispatch_config: Dict = {"args": ("actor", "trigger", "target")}
     action_type: Optional[str] = None
     action_id: Optional[str] = None
-    title: str = ""
-    text: str = ""
+    title: Optional[str] = None
+    text: Optional[str] = None
     delay: int = 0
     notification_backends: List[Type["AbstractBackend"]] = []
 
@@ -59,11 +59,11 @@ class EventHandler:
             text = "{} {}".format(text, str(self.event.target))
         return text
 
-    def get_text(self) -> str:
+    def get_text(self) -> Optional[str]:
         """Override to handle different human readable implementations."""
         return self.text or self._default_dynamic_text()
 
-    def get_title(self) -> str:
+    def get_title(self) -> Optional[str]:
         """Gets the title for the event. To be hooked."""
         return self.title
 

@@ -1,4 +1,5 @@
 import io
+from typing import Optional
 
 from django.contrib.auth import get_user_model
 
@@ -10,6 +11,7 @@ CONFIRMED_EVENT = "confirmed"
 DUMMY_EVENT = "dummy"
 EVERY_HOUR = "every hour"
 SMALL_EVENT = "small"
+DUMMY_EVENT_NO_BODY = "dummy no body"
 
 
 @snitch.register(ACTIVATED_EVENT)
@@ -66,3 +68,12 @@ class SmallHandler(snitch.EventHandler):
     title = "Small event!"
     template_email_kwargs = {"template_name": "email.html"}
     template_email_async = False
+
+
+@snitch.register(DUMMY_EVENT_NO_BODY)
+class DummyNoBodyHandler(snitch.EventHandler):
+    def get_title(self) -> Optional[str]:
+        return None
+
+    def get_text(self) -> Optional[str]:
+        return None

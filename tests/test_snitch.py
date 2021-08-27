@@ -12,6 +12,7 @@ from tests.app.events import (
     ACTIVATED_EVENT,
     CONFIRMED_EVENT,
     DUMMY_EVENT,
+    DUMMY_EVENT_NO_BODY,
     EVERY_HOUR,
     SMALL_EVENT,
     ActivatedHandler,
@@ -210,3 +211,11 @@ class SnitchTestCase(TestCase):
         except Exception:
             exception = True
         self.assertFalse(exception)
+
+    def test_dispatch_event_without_title(self):
+        self.assertEqual(0, Event.objects.filter(verb=DUMMY_EVENT_NO_BODY).count())
+        stuff = StuffFactory()
+        stuff.dummy()
+        self.assertEqual(1, Event.objects.filter(verb=DUMMY_EVENT_NO_BODY).count())
+        event = Event.objects.filter(verb=DUMMY_EVENT_NO_BODY).first()
+        self.assertEqual("-", str(event))

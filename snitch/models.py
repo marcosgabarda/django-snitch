@@ -94,7 +94,7 @@ class Event(TimeStampedModel):
 
     def __str__(self) -> str:
         handler = self.handler()
-        return handler.get_text()
+        return handler.get_text() or "-"
 
     def handler(self, notification: "Notification" = None) -> "EventHandler":
         """Gets the handler for the event."""

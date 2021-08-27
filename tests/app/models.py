@@ -4,7 +4,12 @@ from model_utils.models import TimeStampedModel
 
 import snitch
 from snitch.models import AbstractNotification
-from tests.app.events import ACTIVATED_EVENT, CONFIRMED_EVENT, SMALL_EVENT
+from tests.app.events import (
+    ACTIVATED_EVENT,
+    CONFIRMED_EVENT,
+    DUMMY_EVENT_NO_BODY,
+    SMALL_EVENT,
+)
 
 
 class Notification(AbstractNotification):
@@ -31,6 +36,10 @@ class Stuff(models.Model):
 
     @snitch.dispatch(SMALL_EVENT)
     def small(self):
+        pass
+
+    @snitch.dispatch(DUMMY_EVENT_NO_BODY)
+    def dummy(self):
         pass
 
 

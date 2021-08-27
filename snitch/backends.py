@@ -92,11 +92,11 @@ class PushNotificationBackend(AbstractBackend):
         """
         return None
 
-    def _build_gcm_message(self) -> Tuple[str, Dict]:
+    def _build_gcm_message(self) -> Tuple[Optional[str], Dict]:
         """Creates the message for GCM."""
-        message: str = self.handler.get_text()
+        message: Optional[str] = self.handler.get_text()
         extra = {}
-        title: str = self.handler.get_title()
+        title: Optional[str] = self.handler.get_title()
         if title:
             extra["title"] = title
         if self.action_type:
@@ -108,12 +108,12 @@ class PushNotificationBackend(AbstractBackend):
             extra.update(extra_data)
         return message, extra
 
-    def _build_apns_message(self) -> Tuple[Union[str, Dict], Dict]:
+    def _build_apns_message(self) -> Tuple[Union[Optional[str], Dict], Dict]:
         """Creates the message for APNS."""
-        text: str = self.handler.get_text()
-        message: Union[str, Dict] = text
+        text: Optional[str] = self.handler.get_text()
+        message: Union[Optional[str], Dict] = text
         extra: Dict = {}
-        title: str = self.handler.get_title()
+        title: Optional[str] = self.handler.get_title()
         if title:
             message = {"title": title, "body": text}
         if self.action_type:
