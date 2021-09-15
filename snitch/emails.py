@@ -1,6 +1,6 @@
 import warnings
 from typing import Dict, List, Optional, Union
-
+import re
 import bleach
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -51,6 +51,10 @@ class TemplateEmailMessage:
                 setattr(self, attr_name, [attr])
             else:
                 setattr(self, attr_name, attr)
+        self.to = to if isinstance(to, (list, tuple)) else [to]
+        self.reply_to = reply_to
+        self.bcc = bcc if isinstance(bcc, (list, tuple)) else [bcc]
+        self.cc = cc if isinstance(cc, (list, tuple)) else [cc]
         self.subject = self.default_subject if subject is None else subject
         self.from_email = self.default_from_email if from_email is None else from_email
         self.attaches = [] if attaches is None else attaches
@@ -73,11 +77,30 @@ class TemplateEmailMessage:
         message = render_to_string(self.template_name, context, using="django")
         return message
 
-    def async_send(self, message, message_txt):
+    def get_message(self) -> str:
+        """Gets the message."""
+        context = self.get_context()
+        message = render_to_string(self.template_name, context, using="django")
+        return message
+
+    def get_plain_message(self, message: Optional[str] = None) -> str:
+        """Gets a plain version of the message."""
+        if message is None:
+            message = self.get_message()
+        message_plain = re.sub(r"[\t\n\r\f\v]", "", message)
+        message_plain = re.sub(
+            "<style.*?>.+</style>", "", message_plain
+        )  # Special case for style tag
+        message_plain = message_plain.replace("</p>", "\n")
+        message_plain = message_plain.replace("</h1>", "\n\n")
+        message_plain = bleach.clean(message_plain, strip=True)
+        return message_plain.strip()
+
+    def async_send(self, message, message_plain):
         if not self.fake:
             send_email_asynchronously.delay(
                 self.subject,
-                message_txt,
+                message_plain,
                 message,
                 self.from_email,
                 self.to,
@@ -91,11 +114,11 @@ class TemplateEmailMessage:
                     "attaches."
                 )
 
-    def sync_send(self, message, message_txt):
+    def sync_send(self, message, message_plain):
         if not self.fake:
             email = EmailMultiAlternatives(
                 subject=self.subject,
-                body=message_txt,
+                body=message_plain,
                 bcc=self.bcc,
                 cc=self.cc,
                 from_email=self.from_email,
@@ -118,16 +141,12 @@ class TemplateEmailMessage:
             language = self.get_language()
             translation.activate(language)
         self.subject = "%s" % self.subject
-        context = self.get_context()
-        message = render_to_string(self.template_name, context, using="django")
-        message_txt = message.replace("\n", "")
-        message_txt = message_txt.replace("</p>", "\n")
-        message_txt = message_txt.replace("</h1>", "\n\n")
-        message_txt = bleach.clean(message_txt, strip=True)
+        message = self.get_message()
+        message_plain = self.get_plain_message(message)
         if use_async:
-            self.async_send(message, message_txt)
+            self.async_send(message, message_plain)
         else:
-            self.sync_send(message, message_txt)
+            self.sync_send(message, message_plain)
 
 
 class AdminsTemplateEmailMessage(TemplateEmailMessage):

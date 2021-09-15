@@ -3,12 +3,15 @@
 History
 -------
 
+2.1.1 (2021-09-15)
+++++++++++++++++++
+
+* Fix: Clean style tag for plain message.
 
 2.0.2 (2021-06-19)
 ++++++++++++++++++
 
 * Fix: Removed choices from event type verb to solve migrations when a verb is added.
-
 
 2.0.1 (2021-06-10)
 ++++++++++++++++++

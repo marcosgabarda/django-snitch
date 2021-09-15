@@ -9,3 +9,11 @@ class WelcomeEmail(TemplateEmailMessage):
     default_template_name = "email.html"
     default_subject = _("Welcome!")
     use_i18n = True
+
+
+class WelcomeHTMLEmail(TemplateEmailMessage):
+    """Email notification when when an user is register, to welcome."""
+
+    default_template_name = "html_email.html"
+    default_subject = _("Welcome!")
+    use_i18n = True

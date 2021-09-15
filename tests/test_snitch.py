@@ -7,7 +7,7 @@ import snitch
 from snitch.models import Event
 from snitch.schedules.models import Schedule
 from snitch.schedules.tasks import clean_scheduled_tasks, execute_schedule_task
-from tests.app.emails import WelcomeEmail
+from tests.app.emails import WelcomeEmail, WelcomeHTMLEmail
 from tests.app.events import (
     ACTIVATED_EVENT,
     CONFIRMED_EVENT,
@@ -208,7 +208,7 @@ class SnitchTestCase(TestCase):
             self.assertEqual(email.bcc, ["test@tost.com"])
             self.assertIsNone(email.reply_to)
             exception = False
-        except Exception:
+        except Exception as exc:
             exception = True
         self.assertFalse(exception)
 
@@ -219,3 +219,9 @@ class SnitchTestCase(TestCase):
         self.assertEqual(1, Event.objects.filter(verb=DUMMY_EVENT_NO_BODY).count())
         event = Event.objects.filter(verb=DUMMY_EVENT_NO_BODY).first()
         self.assertEqual("-", str(event))
+
+    def test_plain_text_email(self):
+        email = WelcomeHTMLEmail(
+            to="test@example.com", cc="test@test.com", bcc="test@tost.com", context={}
+        )
+        self.assertEqual("Hello world!", email.get_plain_message())
