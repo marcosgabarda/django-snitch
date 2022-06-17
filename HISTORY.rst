@@ -3,6 +3,11 @@
 History
 -------
 
+2.2.1 (2022-06-17)
+++++++++++++++++++
+
+* Fix: Version in package and updated dependencies
+
 2.2.0 (2022-06-17)
 ++++++++++++++++++
 
