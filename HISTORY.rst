@@ -3,6 +3,12 @@
 History
 -------
 
+2.2.0 (2022-06-17)
+++++++++++++++++++
+
+* Feat: Support for Django 4.0
+* Feat: Support for django-push-notifications 3.0
+
 2.1.1 (2021-09-15)
 ++++++++++++++++++
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-snitch"
-version = "2.1.2"
+version = "2.2.0"
 description = "Django app made to integrate generic events that create notifications that can be sent to users using several backends."
 readme = "README.rst"
 authors = ["Marcos Gabarda <hey@marcosgabarda.com>"]
@@ -16,18 +16,18 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-django = "^3.0.7"
+python = "^3.8"
+django = ">=3.0.0"
 django-model-utils = "^4.1.1"
 bleach = "^4.1.0"
-celery = "^5.0.5"
+celery = "^5.0.0"
 django-celery-beat = "^2.2.0"
-django-push-notifications = "^2.0.0"
+django-push-notifications = ">=2.0.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.7.4"
 pytest = "^6.2.3"
-black = "^20.8b1"
+black = "^22.3.0"
 factory_boy = "^3.2.0"
 django-test-plus = "^1.4.0"
 pytest-django = "^4.1.0"

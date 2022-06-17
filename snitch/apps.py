@@ -12,6 +12,8 @@ class SimpleSnitchConfig(AppConfig):
 class SnitchConfig(SimpleSnitchConfig):
     """The default AppConfig for admin which does automatic discovery."""
 
+    default = True
+
     def ready(self):
         super().ready()
         self.module.autodiscover()

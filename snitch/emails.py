@@ -1,6 +1,7 @@
+import re
 import warnings
 from typing import Dict, List, Optional, Union
-import re
+
 import bleach
 from django.conf import settings
 from django.contrib.sites.models import Site

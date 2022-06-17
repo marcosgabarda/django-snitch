@@ -4,6 +4,7 @@ can be sent to users using several backends.
 By default, it integrates push notifications and email to send the
 notifications.
 """
+import django
 from django.utils.module_loading import autodiscover_modules
 
 from snitch.decorators import dispatch, register
@@ -26,4 +27,5 @@ def autodiscover():
     autodiscover_modules("events", register_to=manager)
 
 
-default_app_config = "snitch.apps.SnitchConfig"
+if django.VERSION < (3, 2):
+    default_app_config = "snitch.apps.SnitchConfig"
