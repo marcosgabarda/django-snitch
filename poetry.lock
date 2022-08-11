@@ -194,7 +194,7 @@ python-versions = "*"
 click = ">=4.0"
 
 [package.extras]
-dev = ["pytest (>=3.6)", "pytest-cov", "wheel", "coveralls"]
+dev = ["coveralls", "wheel", "pytest-cov", "pytest (>=3.6)"]
 
 [[package]]
 name = "click-repl"
@@ -241,7 +241,7 @@ graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 name = "django"
-version = "4.0.5"
+version = "4.0.7"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -254,8 +254,8 @@ sqlparse = ">=0.2.2"
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
 [package.extras]
-argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
+argon2 = ["argon2-cffi (>=19.1.0)"]
 
 [[package]]
 name = "django-celery-beat"
@@ -296,8 +296,8 @@ python-versions = ">=3.6"
 Django = ">=2.2"
 
 [package.extras]
-apns = ["apns2 (>=0.3.0)", "pywebpush (>=1.3.0)", "Django (>=2.2)", "importlib-metadata"]
 wp = ["pywebpush (>=1.3.0)"]
+apns = ["importlib-metadata", "Django (>=2.2)", "pywebpush (>=1.3.0)", "apns2 (>=0.3.0)"]
 
 [[package]]
 name = "django-test-plus"
@@ -475,8 +475,8 @@ optional = false
 python-versions = ">=3.6"
 
 [package.extras]
-dev = ["pre-commit", "tox"]
-testing = ["pytest", "pytest-benchmark"]
+testing = ["pytest-benchmark", "pytest"]
+dev = ["tox", "pre-commit"]
 
 [[package]]
 name = "prompt-toolkit"
@@ -716,7 +716,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "86f18aa5acb31ce61ab210a2aa30938a3cb87853a9be901f45990d62de98d558"
+content-hash = "deb9da8b225f98d88f5f04e5001cd610f48425a78d42fbe2820c3cade713e201"
 
 [metadata.files]
 amqp = [
@@ -862,8 +862,8 @@ dill = [
     {file = "dill-0.3.5.1.tar.gz", hash = "sha256:d75e41f3eff1eee599d738e76ba8f4ad98ea229db8b085318aa2b3333a208c86"},
 ]
 django = [
-    {file = "Django-4.0.5-py3-none-any.whl", hash = "sha256:502ae42b6ab1b612c933fb50d5ff850facf858a4c212f76946ecd8ea5b3bf2d9"},
-    {file = "Django-4.0.5.tar.gz", hash = "sha256:f7431a5de7277966f3785557c3928433347d998c1e6459324501378a291e5aab"},
+    {file = "Django-4.0.7-py3-none-any.whl", hash = "sha256:41bd65a9e5f8a89cdbfa7a7bba45cd7431ae89e750af82dea8a35fd1a7ecbe66"},
+    {file = "Django-4.0.7.tar.gz", hash = "sha256:9c6d5ad36be798e562ddcaa6b17b1c3ff2d3c4f529a47432b69fb9a30f847461"},
 ]
 django-celery-beat = [
     {file = "django-celery-beat-2.3.0.tar.gz", hash = "sha256:ba24f86ed956ba0ee2b43237a49303ebf5aa7e0fb0ccb7e0542b7e31a463dcba"},
