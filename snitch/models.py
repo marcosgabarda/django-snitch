@@ -156,7 +156,7 @@ class AbstractNotification(TimeStampedModel):
         """Sends a push notification to the devices of the user."""
         from snitch.tasks import send_notification_task
 
-        handler: "EventHandler" = self.event.handler()
+        handler: "EventHandler" = self.handler()
         if handler.should_send:
             if send_async:
                 send_notification_task.apply_async(

@@ -20,8 +20,6 @@ if TYPE_CHECKING:
 class EventHandler:
     """Base event backend to generic even types."""
 
-    should_notify: bool = True
-    should_send: bool = True
     ephemeral: bool = False
     dispatch_config: Dict = {"args": ("actor", "trigger", "target")}
     action_type: Optional[str] = None
@@ -58,6 +56,18 @@ class EventHandler:
         if self.event.target:
             text = "{} {}".format(text, str(self.event.target))
         return text
+
+    @property
+    def should_notify(self) -> bool:
+        """Used by the event to create or not the notifications to the audience."""
+        return True
+
+    @property
+    def should_send(self) -> bool:
+        """Used by the notification to send or not the notification to the user. If
+        returns False, the notification is created in the database but not sent.
+        """
+        return True
 
     def get_text(self) -> Optional[str]:
         """Override to handle different human readable implementations."""

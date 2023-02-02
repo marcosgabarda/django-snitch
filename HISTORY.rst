@@ -3,6 +3,14 @@
 History
 -------
 
+2.3.0 (2023-02-02)
+++++++++++++++++++
+
+* Chore: Updated dependencies.
+* Feat: IDs changed to BigAutoField.
+* Feat: should_notify and should_send changed to property methods.
+* Fix: Use of notification handler() method on send.
+
 2.2.1 (2022-06-17)
 ++++++++++++++++++
 
