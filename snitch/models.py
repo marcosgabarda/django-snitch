@@ -1,7 +1,8 @@
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User as AuthUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -16,8 +17,6 @@ from snitch.managers import NotificationQuerySet
 from snitch.settings import NOTIFICATION_EAGER
 
 if TYPE_CHECKING:
-    from django.contrib.auth.models import User as AuthUser
-
     from snitch import EventHandler
     from snitch.backends import AbstractBackend
 
@@ -101,7 +100,9 @@ class Event(TimeStampedModel):
         handler = self.handler()
         return handler.get_text() or "-"
 
-    def handler(self, notification: "Notification" = None) -> "EventHandler":
+    def handler(
+        self, notification: "AbstractNotification | None" = None
+    ) -> "EventHandler":
         """Gets the handler for the event."""
         return manager.handler(self, notification=notification)
 
@@ -151,7 +152,7 @@ class AbstractNotification(TimeStampedModel):
     def __str__(self) -> str:
         return f"'{str(self.event)}' to {str(self.user)}"
 
-    def _task_kwargs(self, handler: "EventHandler") -> Dict:
+    def _task_kwargs(self, handler: "EventHandler") -> dict:
         """Gets the kwargs for celery task, used in apply_async method."""
         kwargs = {}
         # Delay from event handler
@@ -161,7 +162,7 @@ class AbstractNotification(TimeStampedModel):
         return kwargs
 
     @cached_property
-    def user(self) -> Optional["AuthUser"]:
+    def user(self) -> AuthUser | None:
         """Get the user if the receiver is an user."""
         return (
             self.receiver

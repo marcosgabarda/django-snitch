@@ -4,7 +4,6 @@ from factory.django import DjangoModelFactory
 
 
 class UserFactory(DjangoModelFactory):
-
     username = Faker("email")
 
     @post_generation

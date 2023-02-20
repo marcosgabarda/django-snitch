@@ -151,7 +151,7 @@ class Schedule(TimeStampedModel):
             )
         return kwargs
 
-    def get_or_creates_periodic_task(self) -> PeriodicTask:
+    def get_or_creates_periodic_task(self) -> "PeriodicTask":
         """Gets or creates the Celery periodic task."""
         name = self.periodic_task_name()
         if not PeriodicTask.objects.filter(name=name).exists():

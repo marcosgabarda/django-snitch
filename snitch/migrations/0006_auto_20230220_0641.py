@@ -22,7 +22,6 @@ def migrate_users_to_receiver(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("snitch", "0005_notification_receiver_content_type_and_more"),
     ]

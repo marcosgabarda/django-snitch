@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -31,7 +31,7 @@ def get_notification_model():
 
 
 def explicit_dispatch(
-    verb: str, config: Optional[Dict] = DEFAULT_CONFIG, *args, **kwargs
+    verb: str, config: dict | None = DEFAULT_CONFIG, *args, **kwargs
 ) -> Any:
     """Helper to explicit dispatch an event without using a decorator."""
     from snitch.decorators import dispatch
@@ -41,7 +41,7 @@ def explicit_dispatch(
     )(*args, **kwargs)
 
 
-def extract_actor_trigger_target(config: Dict, args: Tuple, kwargs: Dict) -> Tuple:
+def extract_actor_trigger_target(config: dict, args: Tuple, kwargs: dict) -> Tuple:
     """Extracts the actor, trigger and target using the arguments config given from
     the generic arguments args and kwargs.
     """

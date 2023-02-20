@@ -1,5 +1,4 @@
 import io
-from typing import Optional
 
 from django.contrib.auth import get_user_model
 
@@ -73,10 +72,10 @@ class SmallHandler(snitch.EventHandler):
 
 @snitch.register(DUMMY_EVENT_NO_BODY)
 class DummyNoBodyHandler(snitch.EventHandler):
-    def get_title(self) -> Optional[str]:
+    def get_title(self) -> str | None:
         return None
 
-    def get_text(self) -> Optional[str]:
+    def get_text(self) -> str | None:
         return None
 
 

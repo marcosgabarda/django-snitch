@@ -1,17 +1,13 @@
-from typing import TYPE_CHECKING
-
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-
-if TYPE_CHECKING:
-    from django.contrib.auth.models import AbstractBaseUser
 
 User = get_user_model()
 
 
 class NotificationQuerySet(models.QuerySet):
-    def accessible(self, user: "AbstractBaseUser") -> "NotificationQuerySet":
+    def accessible(self, user: AbstractBaseUser) -> "NotificationQuerySet":
         """Gets the notifications accessible by the given user."""
         if not user.is_authenticated:
             return self.none()

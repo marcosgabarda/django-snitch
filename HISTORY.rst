@@ -6,8 +6,10 @@ History
 3.0.0 (2023-xx-xx)
 ++++++++++++++++++
 
-* Feat: Removed ``user`` from notifications, and replaced with ``receiver`` to allow multiple types of audience.
-* Feat: Added cool down system, to allow 
+* BREAKING CHANGE: Removed ``user`` from notifications, and replaced with ``receiver`` to allow multiple types of audience.
+* Feat: Added cool down system
+* Chore: Updated to use Python 3.10 as minimum version
+* Chore: Updated type hints
 
 2.3.0 (2023-02-02)
 ++++++++++++++++++
