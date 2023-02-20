@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
+from snitch.cooldowns import CoolDownManager
 from snitch.exceptions import HandlerError
 from snitch.helpers import (
     extract_actor_trigger_target,
@@ -13,7 +14,11 @@ from snitch.helpers import (
 )
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser
+    from django.db import models
+
     from snitch.backends import AbstractBackend
+    from snitch.cooldowns import AbstractCoolDownManager
     from snitch.models import Event, Notification
 
 
@@ -27,9 +32,10 @@ class EventHandler:
     title: Optional[str] = None
     text: Optional[str] = None
     delay: int = 0
-    notification_backends: List[Type["AbstractBackend"]] = []
-
     template_email_async: bool = False
+
+    notification_backends: List[Type["AbstractBackend"]] = []
+    cool_down_manager_class: Type["AbstractCoolDownManager"] = CoolDownManager
 
     @classmethod
     def extract_actor_trigger_target(cls, method: str, *args, **kwargs):
@@ -47,6 +53,7 @@ class EventHandler:
     def __init__(self, event: "Event", notification: "Notification" = None):
         self.event = event
         self.notification = notification
+        self.cool_down_manager = self.cool_down_manager_class(event_handler=self)
 
     def _default_dynamic_text(self) -> str:
         """Makes an event human readable."""
@@ -57,17 +64,17 @@ class EventHandler:
             text = "{} {}".format(text, str(self.event.target))
         return text
 
-    @property
-    def should_notify(self) -> bool:
-        """Used by the event to create or not the notifications to the audience."""
-        return True
+    def should_notify(self, receiver: "models.Model") -> bool:
+        """Used by the event to create or not the notifications to the audience. If the
+        notification is not created, there isn't any notification sent
+        (push, email, etc), and there isn't any record in the database."""
+        return self.cool_down_manager.should_notify(receiver=receiver)
 
-    @property
-    def should_send(self) -> bool:
+    def should_send(self, receiver: "models.Model") -> bool:
         """Used by the notification to send or not the notification to the user. If
         returns False, the notification is created in the database but not sent.
         """
-        return True
+        return self.cool_down_manager.should_send(receiver=receiver)
 
     def get_text(self) -> Optional[str]:
         """Override to handle different human readable implementations."""
@@ -91,7 +98,7 @@ class EventHandler:
         """
         return self.delay
 
-    def get_language(self, user=None) -> str:
+    def get_language(self, user: Optional["AbstractBaseUser"] = None) -> str:
         """Gets the locale for the given used. By default, users the LANGUAGE_CODE
         value from settings.
         """
@@ -101,7 +108,7 @@ class EventHandler:
         """Adds extra meta data to the backend."""
         return {}
 
-    def audience(self) -> QuerySet:
+    def audience(self) -> "QuerySet":
         """Gets the audience of the event. None by default, to be hooked by the user."""
         User = get_user_model()
         return User.objects.none()
@@ -114,9 +121,10 @@ class EventHandler:
         if not self.ephemeral:
             # Creates a notification
             Notification = get_notification_model()
-            for user in self.audience():
-                notification = Notification(event=self.event, user=user)
-                notification.save()
+            for receiver in self.audience():
+                if self.should_notify(receiver=receiver):
+                    notification = Notification(event=self.event, receiver=receiver)
+                    notification.save()
         else:
             # Only sends the event to the user
             for user in self.audience():

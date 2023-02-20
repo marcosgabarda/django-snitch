@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
+from django.db import models
 from django.utils import translation
 
 from snitch.constants import DEFAULT_CONFIG
@@ -80,7 +82,7 @@ def send_event_to_user(event: "Event", user) -> None:
     handler.
     """
     handler: "EventHandler" = event.handler()
-    if handler.should_send:
+    if handler.should_send(receiver=user):
         # Activate language for translations
         if settings.USE_I18N:
             language = handler.get_language(user)
@@ -88,3 +90,20 @@ def send_event_to_user(event: "Event", user) -> None:
         for backend_class in handler.notification_backends:
             backend = backend_class(event=event, user=user)
             backend.send()
+
+
+def receiver_content_type_choices() -> "models.Q":
+    """Get the posible receivers for a notification."""
+    User = get_user_model()  # Here to be able to access after the apps are ready
+    choices = models.Q(app_label=User._meta.app_label, model=User._meta.model_name)
+    try:
+        from push_notifications.models import APNSDevice, GCMDevice
+
+        choices |= models.Q(
+            app_label=GCMDevice._meta.app_label, model=GCMDevice._meta.model_name
+        ) | models.Q(
+            app_label=APNSDevice._meta.app_label, model=APNSDevice._meta.model_name
+        )
+    except ImportError:
+        return choices
+    return choices

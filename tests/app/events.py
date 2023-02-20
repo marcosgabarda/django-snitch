@@ -12,6 +12,7 @@ DUMMY_EVENT = "dummy"
 EVERY_HOUR = "every hour"
 SMALL_EVENT = "small"
 DUMMY_EVENT_NO_BODY = "dummy no body"
+SPAM = "spam"
 
 
 @snitch.register(ACTIVATED_EVENT)
@@ -77,3 +78,13 @@ class DummyNoBodyHandler(snitch.EventHandler):
 
     def get_text(self) -> Optional[str]:
         return None
+
+
+@snitch.register(SPAM)
+class SpamHandler(snitch.EventHandler):
+    cool_down_attempts = 5
+    cool_down_time = 5
+    notification_backends = [PushNotificationBackend]
+
+    def audience(self):
+        return get_user_model().objects.all()

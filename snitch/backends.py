@@ -56,12 +56,15 @@ class PushNotificationBackend(AbstractBackend):
     """A backend class to send push notifications depending on the platform."""
 
     default_batch_sending: bool = True
+    action_type: str
+    action_id: str
+    batch_sending: bool
 
     def __init__(self, *args, **kwargs):
         """Adds attributes for the push notification from the handler."""
         super().__init__(*args, **kwargs)
-        self.action_type: str = self.handler.get_action_type()
-        self.action_id: str = self.handler.get_action_id()
+        self.action_type = self.handler.get_action_type()
+        self.action_id = self.handler.get_action_id()
         self.batch_sending = kwargs.get("batch_sending", self.default_batch_sending)
 
     def extra_data(self) -> Dict:
@@ -71,13 +74,22 @@ class PushNotificationBackend(AbstractBackend):
         return self.handler.get_extra_data()
 
     def get_devices(
-        self, device_class: Union[Type["GCMDevice"], Type["APNSDevice"]]
+        self,
+        device_class: Union[
+            Type["GCMDevice"],
+            Type["APNSDevice"],
+        ],
     ) -> "models.QuerySet":
         """Gets the devices using the given class."""
-        return device_class.objects.filter(user=self.user)
+        if self.user is not None:
+            return device_class.objects.filter(user=self.user)
+        if self.notification and self.notification.receiver_class() == device_class:
+            return device_class.objects.filter(pk=self.notification.receiver_id)
+        return device_class.objects.none()
 
     def pre_send(
-        self, device: Optional[Union["GCMDevice", "APNSDevice"]] = None
+        self,
+        device: Optional[Union["GCMDevice", "APNSDevice"]] = None,
     ) -> None:
         """Actions previous to build the message and send, like activate translations if
         needed.
@@ -85,7 +97,8 @@ class PushNotificationBackend(AbstractBackend):
         return None
 
     def post_send(
-        self, device: Optional[Union["GCMDevice", "APNSDevice"]] = None
+        self,
+        device: Optional[Union["GCMDevice", "APNSDevice"]] = None,
     ) -> None:
         """Actions post to sent the message, like deactivate translations if
         needed.

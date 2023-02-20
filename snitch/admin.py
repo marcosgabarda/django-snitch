@@ -38,8 +38,15 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ["id", "event", "user", "read", "received", "created"]
-    list_filter = ["event__verb", "read", "sent"]
-    search_fields = ["user__email"]
+    list_display = [
+        "id",
+        "event",
+        "receiver_content_type",
+        "receiver_id",
+        "read",
+        "received",
+        "created",
+    ]
+    list_filter = ["event__verb", "read", "sent", "receiver_content_type"]
+    search_fields = ["receiver_id"]
     actions = [send_action]
-    autocomplete_fields = ["user"]

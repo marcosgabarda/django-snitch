@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -6,13 +6,18 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import translation
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from model_utils.models import TimeStampedModel
 
 from snitch.handlers import manager
+from snitch.helpers import receiver_content_type_choices
+from snitch.managers import NotificationQuerySet
 from snitch.settings import NOTIFICATION_EAGER
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import User as AuthUser
+
     from snitch import EventHandler
     from snitch.backends import AbstractBackend
 
@@ -103,10 +108,9 @@ class Event(TimeStampedModel):
     def notify(self) -> None:
         """Creates the notifications associated to this action, ."""
         handler = self.handler()
-        if handler.should_notify:
-            handler.notify()
-            self.notified = True
-            self.save()
+        handler.notify()
+        self.notified = True
+        self.save()
 
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
@@ -123,12 +127,20 @@ class AbstractNotification(TimeStampedModel):
         related_name="notifications",
         on_delete=models.CASCADE,
     )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="notifications", on_delete=models.CASCADE
+    receiver = GenericForeignKey("receiver_content_type", "receiver_id")
+    receiver_content_type = models.ForeignKey(
+        ContentType,
+        verbose_name=_("receiver content type"),
+        on_delete=models.CASCADE,
+        null=True,
+        limit_choices_to=receiver_content_type_choices,
     )
+    receiver_id = models.PositiveIntegerField(_("receiver id"), null=True)
     sent = models.BooleanField(_("sent"), default=False)
     received = models.BooleanField(_("received"), default=False)
     read = models.BooleanField(_("read"), default=False)
+
+    objects = NotificationQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("notification")
@@ -148,6 +160,33 @@ class AbstractNotification(TimeStampedModel):
             kwargs["countdown"] = delay
         return kwargs
 
+    @cached_property
+    def user(self) -> Optional["AuthUser"]:
+        """Get the user if the receiver is an user."""
+        return (
+            self.receiver
+            if self.receiver_content_type == ContentType.objects.get_for_model(User)
+            else None
+        )
+
+    def receiver_class(self):
+        """Gets the class of the device."""
+        classes = {ContentType.objects.get_for_model(User): User}
+        try:
+            from push_notifications.models import APNSDevice, GCMDevice
+
+            classes.update(
+                {
+                    ContentType.objects.get_for_model(GCMDevice): GCMDevice,
+                },
+                {
+                    ContentType.objects.get_for_model(APNSDevice): APNSDevice,
+                },
+            )
+        except ImportError:
+            ...
+        return classes.get(self.receiver_content_type)
+
     def handler(self) -> "EventHandler":
         """Gets the handler for the notification."""
         return self.event.handler(notification=self)
@@ -157,7 +196,7 @@ class AbstractNotification(TimeStampedModel):
         from snitch.tasks import send_notification_task
 
         handler: "EventHandler" = self.handler()
-        if handler.should_send:
+        if handler.should_send(receiver=self.receiver):
             if send_async:
                 send_notification_task.apply_async(
                     (self.pk,), **self._task_kwargs(handler)

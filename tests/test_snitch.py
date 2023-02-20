@@ -1,5 +1,7 @@
+import time
 import warnings
 
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django_celery_beat.models import DAYS
 
@@ -15,9 +17,11 @@ from tests.app.events import (
     DUMMY_EVENT_NO_BODY,
     EVERY_HOUR,
     SMALL_EVENT,
+    SPAM,
     ActivatedHandler,
     ConfirmedHandler,
     DummyHandler,
+    SpamHandler,
 )
 from tests.app.factories import (
     ActorFactory,
@@ -225,3 +229,37 @@ class SnitchTestCase(TestCase):
             to="test@example.com", cc="test@test.com", bcc="test@tost.com", context={}
         )
         self.assertEqual("Hello world!", email.get_plain_message())
+
+    def test_cool_down(self):
+        user = UserFactory()
+        stuff = StuffFactory()
+        for _ in range(SpamHandler.cool_down_attempts - 1):
+            stuff.spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts - 1,
+            Notification.objects.filter(
+                event__verb=SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )
+        stuff.spam(user=user)
+        stuff.spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts,
+            Notification.objects.filter(
+                event__verb=SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )
+        time.sleep(SpamHandler.cool_down_time + 1)
+        stuff.spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts + 1,
+            Notification.objects.filter(
+                event__verb=SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )

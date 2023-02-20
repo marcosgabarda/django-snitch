@@ -9,6 +9,7 @@ from tests.app.events import (
     CONFIRMED_EVENT,
     DUMMY_EVENT_NO_BODY,
     SMALL_EVENT,
+    SPAM,
 )
 
 
@@ -40,6 +41,10 @@ class Stuff(models.Model):
 
     @snitch.dispatch(DUMMY_EVENT_NO_BODY)
     def dummy(self):
+        pass
+
+    @snitch.dispatch(SPAM, method=True, config={"kwargs": {"actor": "user"}})
+    def spam(self, user):
         pass
 
 
