@@ -1,11 +1,9 @@
-from typing import Optional
-
 from celery import shared_task
 from django.db.models import F
 
 
 @shared_task(serializer="json")
-def execute_schedule_task(schedule_id: int) -> Optional[int]:
+def execute_schedule_task(schedule_id: int) -> int | None:
     from snitch.schedules.models import Schedule
 
     try:

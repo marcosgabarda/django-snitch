@@ -1,10 +1,12 @@
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Tuple, Type
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
+from snitch.cooldowns import CoolDownManager
 from snitch.exceptions import HandlerError
 from snitch.helpers import (
     extract_actor_trigger_target,
@@ -13,7 +15,10 @@ from snitch.helpers import (
 )
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser
+
     from snitch.backends import AbstractBackend
+    from snitch.cooldowns import AbstractCoolDownManager
     from snitch.models import Event, Notification
 
 
@@ -21,15 +26,16 @@ class EventHandler:
     """Base event backend to generic even types."""
 
     ephemeral: bool = False
-    dispatch_config: Dict = {"args": ("actor", "trigger", "target")}
-    action_type: Optional[str] = None
-    action_id: Optional[str] = None
-    title: Optional[str] = None
-    text: Optional[str] = None
+    dispatch_config: dict = {"args": ("actor", "trigger", "target")}
+    action_type: str | None = None
+    action_id: str | None = None
+    title: str | None = None
+    text: str | None = None
     delay: int = 0
-    notification_backends: List[Type["AbstractBackend"]] = []
-
     template_email_async: bool = False
+
+    notification_backends: list[Type["AbstractBackend"]] = []
+    cool_down_manager_class: Type["AbstractCoolDownManager"] = CoolDownManager
 
     @classmethod
     def extract_actor_trigger_target(cls, method: str, *args, **kwargs):
@@ -44,9 +50,10 @@ class EventHandler:
             config=cls.dispatch_config, args=args, kwargs=kwargs
         )
 
-    def __init__(self, event: "Event", notification: "Notification" = None):
+    def __init__(self, event: "Event", notification: "Notification | None" = None):
         self.event = event
         self.notification = notification
+        self.cool_down_manager = self.cool_down_manager_class(event_handler=self)
 
     def _default_dynamic_text(self) -> str:
         """Makes an event human readable."""
@@ -57,31 +64,31 @@ class EventHandler:
             text = "{} {}".format(text, str(self.event.target))
         return text
 
-    @property
-    def should_notify(self) -> bool:
-        """Used by the event to create or not the notifications to the audience."""
-        return True
+    def should_notify(self, receiver: "models.Model") -> bool:
+        """Used by the event to create or not the notifications to the audience. If the
+        notification is not created, there isn't any notification sent
+        (push, email, etc), and there isn't any record in the database."""
+        return self.cool_down_manager.should_notify(receiver=receiver)
 
-    @property
-    def should_send(self) -> bool:
+    def should_send(self, receiver: "models.Model") -> bool:
         """Used by the notification to send or not the notification to the user. If
         returns False, the notification is created in the database but not sent.
         """
-        return True
+        return self.cool_down_manager.should_send(receiver=receiver)
 
-    def get_text(self) -> Optional[str]:
+    def get_text(self) -> str | None:
         """Override to handle different human readable implementations."""
         return self.text or self._default_dynamic_text()
 
-    def get_title(self) -> Optional[str]:
+    def get_title(self) -> str | None:
         """Gets the title for the event. To be hooked."""
         return self.title
 
-    def get_action_type(self) -> Optional[str]:
+    def get_action_type(self) -> str | None:
         """Gets the action type depending on the verb. To be hooked."""
         return self.action_type
 
-    def get_action_id(self) -> Optional[str]:
+    def get_action_id(self) -> str | None:
         """Gets the action depending on the verb. To be hooked."""
         return self.action_id
 
@@ -91,17 +98,17 @@ class EventHandler:
         """
         return self.delay
 
-    def get_language(self, user=None) -> str:
+    def get_language(self, user: "AbstractBaseUser | None") -> str:
         """Gets the locale for the given used. By default, users the LANGUAGE_CODE
         value from settings.
         """
         return settings.LANGUAGE_CODE
 
-    def get_extra_data(self) -> Dict:
+    def get_extra_data(self) -> dict:
         """Adds extra meta data to the backend."""
         return {}
 
-    def audience(self) -> QuerySet:
+    def audience(self) -> "QuerySet":
         """Gets the audience of the event. None by default, to be hooked by the user."""
         User = get_user_model()
         return User.objects.none()
@@ -114,9 +121,10 @@ class EventHandler:
         if not self.ephemeral:
             # Creates a notification
             Notification = get_notification_model()
-            for user in self.audience():
-                notification = Notification(event=self.event, user=user)
-                notification.save()
+            for receiver in self.audience():
+                if self.should_notify(receiver=receiver):
+                    notification = Notification(event=self.event, receiver=receiver)
+                    notification.save()
         else:
             # Only sends the event to the user
             for user in self.audience():
@@ -128,12 +136,15 @@ class EventManager:
     handlers with the verbs.
     """
 
+    _registry: dict[str, Type["EventHandler"]]
+    _verbs: dict
+
     def __init__(self):
-        self._registry: Dict[str, Type["EventHandler"]] = {}
-        self._verbs: Dict = {}
+        self._registry = {}
+        self._verbs = {}
 
     def register(
-        self, verb: str, handler: Type["EventHandler"], verbose: Optional[str] = None
+        self, verb: str, handler: Type["EventHandler"], verbose: str | None = None
     ):
         """Register a handler with a verb, and the verbose form of the verb."""
         if not issubclass(handler, EventHandler):
@@ -153,7 +164,7 @@ class EventManager:
         return self._registry.get(verb, EventHandler)
 
     def handler(
-        self, event: "Event", notification: "Notification" = None
+        self, event: "Event", notification: "Notification | None" = None
     ) -> EventHandler:
         """Returns an instance of the handler for the given event."""
         return self.handler_class(event.verb)(event, notification=notification)

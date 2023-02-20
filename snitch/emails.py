@@ -1,6 +1,5 @@
 import re
 import warnings
-from typing import Dict, List, Optional, Union
 
 import bleach
 from django.conf import settings
@@ -26,15 +25,15 @@ class TemplateEmailMessage:
 
     def __init__(
         self,
-        to: Union[str, List],
-        subject: Optional[str] = None,
-        context: Optional[Dict] = None,
-        from_email: Optional[str] = None,
-        attaches: Optional[List] = None,
-        template_name: Optional[str] = None,
-        reply_to: Optional[Union[str, List]] = None,
-        bcc: Optional[Union[str, List]] = None,
-        cc: Optional[Union[str, List]] = None,
+        to: str | list,
+        subject: str | None = None,
+        context: dict | None = None,
+        from_email: str | None = None,
+        attaches: list | None = None,
+        template_name: str | None = None,
+        reply_to: str | list | None = None,
+        bcc: str | list | None = None,
+        cc: str | list | None = None,
     ):
         self.template_name = (
             self.default_template_name if template_name is None else template_name
@@ -65,7 +64,7 @@ class TemplateEmailMessage:
         """Gets the language for the email."""
         return settings.LANGUAGE_CODE
 
-    def get_context(self) -> Dict:
+    def get_context(self) -> dict:
         """Hook to customize context."""
         # Add default context
         current_site = Site.objects.get_current()
@@ -84,7 +83,7 @@ class TemplateEmailMessage:
         message = render_to_string(self.template_name, context, using="django")
         return message
 
-    def get_plain_message(self, message: Optional[str] = None) -> str:
+    def get_plain_message(self, message: str | None = None) -> str:
         """Gets a plain version of the message."""
         if message is None:
             message = self.get_message()
@@ -132,7 +131,7 @@ class TemplateEmailMessage:
                 email.attach(attach_file_name, attach_content, attach_content_type)
             email.send()
 
-    def send(self, use_async: bool = True, language: Optional[str] = None):
+    def send(self, use_async: bool = True, language: str | None = None):
         """Sends the email at the moment or using a Celery task."""
         if not ENABLED_SEND_NOTIFICATIONS:
             return
@@ -155,11 +154,11 @@ class AdminsTemplateEmailMessage(TemplateEmailMessage):
 
     def __init__(
         self,
-        subject: Optional[str] = None,
-        context: Optional[Dict] = None,
-        from_email: Optional[str] = None,
+        subject: str | None = None,
+        context: dict | None = None,
+        from_email: str | None = None,
     ):
-        to: Union[str, List] = [a[1] for a in settings.ADMINS]
+        to: str | list = [a[1] for a in settings.ADMINS]
         super().__init__(to, subject=subject, context=context, from_email=from_email)
 
 
@@ -167,7 +166,10 @@ class ManagersTemplateEmailMessage(TemplateEmailMessage):
     """Emails only for mangers."""
 
     def __init__(
-        self, subject: str = None, context: Dict = None, from_email: str = None
+        self,
+        subject: str | None = None,
+        context: dict | None = None,
+        from_email: str | None = None,
     ):
-        to: Union[str, List] = [manager[1] for manager in settings.MANAGERS]
+        to: str | list = [manager[1] for manager in settings.MANAGERS]
         super().__init__(to, subject=subject, context=context, from_email=from_email)

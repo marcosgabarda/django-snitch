@@ -1,5 +1,3 @@
-from typing import Dict
-
-DEFAULT_CONFIG: Dict = {
+DEFAULT_CONFIG: dict = {
     "kwargs": {"actor": "actor", "trigger": "trigger", "target": "target"}
 }

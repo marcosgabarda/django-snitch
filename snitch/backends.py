@@ -1,7 +1,8 @@
 import logging
-from typing import TYPE_CHECKING, Callable, Dict, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Callable, Tuple, Type, Union
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User as AuthUser
 from django.db import models
 
 from snitch.emails import TemplateEmailMessage
@@ -11,18 +12,11 @@ if TYPE_CHECKING:
     from push_notifications.models import APNSDevice, GCMDevice
 
     from snitch.handlers import EventHandler
-    from snitch.models import Event, Notification
+    from snitch.models import AbstractNotification, Event
+
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
-
-if TYPE_CHECKING:
-    from django.contrib.auth.models import User as AuthUser
-    from django.db import models
-    from push_notifications.models import APNSDevice, GCMDevice
-
-    from snitch.handlers import EventHandler
-    from snitch.models import Event, Notification
 
 
 class AbstractBackend:
@@ -30,19 +24,19 @@ class AbstractBackend:
 
     def __init__(
         self,
-        notification: Optional["Notification"] = None,
-        event: Optional["Event"] = None,
-        user: Optional["AuthUser"] = None,
+        notification: " AbstractNotification | None" = None,
+        event: "Event | None" = None,
+        user: AuthUser | None = None,
     ):
         assert notification is not None or (
             event is not None and user is not None
         ), "You should provide a notification or an event and an user."
 
-        self.notification: Optional["Notification"] = notification
-        self.event: Optional["Event"] = event
-        self.user: Optional["AuthUser"] = user
+        self.notification: "AbstractNotification | None" = notification
+        self.event: "Event | None " = event
+        self.user: AuthUser | None = user
         if self.notification:
-            self.handler: "EventHandler" = self.notification.handler()
+            self.handler: EventHandler = self.notification.handler()
             self.user = self.notification.user
         elif self.event:
             self.handler = self.event.handler()
@@ -56,28 +50,37 @@ class PushNotificationBackend(AbstractBackend):
     """A backend class to send push notifications depending on the platform."""
 
     default_batch_sending: bool = True
+    action_type: str
+    action_id: str
+    batch_sending: bool
 
     def __init__(self, *args, **kwargs):
         """Adds attributes for the push notification from the handler."""
         super().__init__(*args, **kwargs)
-        self.action_type: str = self.handler.get_action_type()
-        self.action_id: str = self.handler.get_action_id()
+        self.action_type = self.handler.get_action_type()
+        self.action_id = self.handler.get_action_id()
         self.batch_sending = kwargs.get("batch_sending", self.default_batch_sending)
 
-    def extra_data(self) -> Dict:
+    def extra_data(self) -> dict:
         """Gets the extra data to add to the push, to be hooked if needed. It tries to
         get an initial dict from the handler.
         """
         return self.handler.get_extra_data()
 
     def get_devices(
-        self, device_class: Union[Type["GCMDevice"], Type["APNSDevice"]]
+        self,
+        device_class: Type["GCMDevice"] | Type["APNSDevice"],
     ) -> "models.QuerySet":
         """Gets the devices using the given class."""
-        return device_class.objects.filter(user=self.user)
+        if self.user is not None:
+            return device_class.objects.filter(user=self.user)
+        if self.notification and self.notification.receiver_class() == device_class:
+            return device_class.objects.filter(pk=self.notification.receiver_id)
+        return device_class.objects.none()
 
     def pre_send(
-        self, device: Optional[Union["GCMDevice", "APNSDevice"]] = None
+        self,
+        device: "GCMDevice | APNSDevice | None" = None,
     ) -> None:
         """Actions previous to build the message and send, like activate translations if
         needed.
@@ -85,18 +88,19 @@ class PushNotificationBackend(AbstractBackend):
         return None
 
     def post_send(
-        self, device: Optional[Union["GCMDevice", "APNSDevice"]] = None
+        self,
+        device: "GCMDevice | APNSDevice | None" = None,
     ) -> None:
         """Actions post to sent the message, like deactivate translations if
         needed.
         """
         return None
 
-    def _build_gcm_message(self) -> Tuple[Optional[str], Dict]:
+    def _build_gcm_message(self) -> Tuple[str | None, dict]:
         """Creates the message for GCM."""
-        message: Optional[str] = self.handler.get_text()
+        message: str | None = self.handler.get_text()
         extra = {}
-        title: Optional[str] = self.handler.get_title()
+        title: str | None = self.handler.get_title()
         if title:
             extra["title"] = title
         if self.action_type:
@@ -108,12 +112,12 @@ class PushNotificationBackend(AbstractBackend):
             extra.update(extra_data)
         return message, extra
 
-    def _build_apns_message(self) -> Tuple[Union[Optional[str], Dict], Dict]:
+    def _build_apns_message(self) -> Tuple[str | dict | None, dict]:
         """Creates the message for APNS."""
-        text: Optional[str] = self.handler.get_text()
-        message: Union[Optional[str], Dict] = text
-        extra: Dict = {}
-        title: Optional[str] = self.handler.get_title()
+        text: str | None = self.handler.get_text()
+        message: str | dict | None = text
+        extra: dict = {}
+        title: str | None = self.handler.get_title()
         if title:
             message = {"title": title, "body": text}
         if self.action_type:
@@ -200,19 +204,19 @@ class EmailNotificationBackend(AbstractBackend):
             else False
         )
 
-    def extra_context(self) -> Dict:
+    def extra_context(self) -> dict:
         """Gets extra context to the email if there is a method in the handler."""
         if hasattr(self.handler, self.get_email_extra_context_attr):
             return getattr(self.handler, self.get_email_extra_context_attr)()
         return {}
 
-    def subject(self) -> Optional[str]:
+    def subject(self) -> str | None:
         """Gets subject of the email if there is a method in the handler."""
         if hasattr(self.handler, self.get_email_subject_attr):
             return getattr(self.handler, self.get_email_subject_attr)()
         return None
 
-    def email_kwargs(self) -> Optional[dict]:
+    def email_kwargs(self) -> dict | None:
         """Dynamically gets the kwargs for TemplateEmailMessage"""
         kwargs = None
         if hasattr(self.handler, self.get_email_kwargs_attr):
