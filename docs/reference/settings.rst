@@ -23,6 +23,6 @@ SNITCH_ENABLED_SEND_EMAILS
     Activate or deactivate the email sending.
 
 SNITCH_NOTIFICATION_EAGER
-    Default: ``False ```
+    Default: ``False``
 
     If it is set to ``True``, notifications will be send without using a Celery task.
