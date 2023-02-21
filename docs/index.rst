@@ -19,6 +19,7 @@ notifications.
 
     guide/install
     guide/usage
+    guide/cool-down
 
 .. toctree::
     :maxdepth: 2

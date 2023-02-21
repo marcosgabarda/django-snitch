@@ -71,6 +71,17 @@ In order to do that, you can use the ``dispatch`` decorator:
             self.confirmed_at = timezone.now()
 
 
+Explicit dispatching events
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Is it possible to dispatch an event using the helper ``explicit_dispatch`` by demand:
+
+.. code-block:: python
+    
+    import snitch
+
+    snitch.explicit_dispatch(verb=DUMMY_EVENT, actor=actor, trigger=trigger, target=target)
+
 Custom Notification model
 -------------------------
 
