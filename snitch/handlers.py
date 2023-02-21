@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Tuple, Type
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
@@ -13,6 +14,7 @@ from snitch.helpers import (
     get_notification_model,
     send_event_to_user,
 )
+from snitch.tasks import create_notification_task
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractBaseUser
@@ -33,6 +35,7 @@ class EventHandler:
     text: str | None = None
     delay: int = 0
     template_email_async: bool = False
+    notification_creation_async: bool = False
 
     notification_backends: list[Type["AbstractBackend"]] = []
     cool_down_manager_class: Type["AbstractCoolDownManager"] = CoolDownManager
@@ -123,8 +126,15 @@ class EventHandler:
             Notification = get_notification_model()
             for receiver in self.audience():
                 if self.should_notify(receiver=receiver):
-                    notification = Notification(event=self.event, receiver=receiver)
-                    notification.save()
+                    if self.notification_creation_async:
+                        create_notification_task.delay(
+                            self.event.pk,
+                            receiver.id,
+                            ContentType.objects.get_for_model(receiver).pk,
+                        )
+                    else:
+                        notification = Notification(event=self.event, receiver=receiver)
+                        notification.save()
         else:
             # Only sends the event to the user
             for user in self.audience():
