@@ -8,8 +8,10 @@ History
 
 * BREAKING CHANGE: Removed ``user`` from notifications, and replaced with ``receiver`` to allow multiple types of audience.
 * Feat: Added cool down system
+* Feat: Added option to create notifications using an async task.
 * Chore: Updated to use Python 3.10 as minimum version
 * Chore: Updated type hints
+* Chore: Use single source to have the version in a single place.
 
 2.3.0 (2023-02-02)
 ++++++++++++++++++

@@ -23,6 +23,7 @@ bleach = ">=4.1.0"
 celery = "^5.0.0"
 django-celery-beat = "^2.4.0"
 django-push-notifications = ">=2.0.0"
+single-source = "^0.3.0"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.16.2"

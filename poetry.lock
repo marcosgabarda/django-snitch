@@ -904,6 +904,18 @@ files = [
 ]
 
 [[package]]
+name = "single-source"
+version = "0.3.0"
+description = "Access to the project version in Python code for PEP 621-style projects"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+files = [
+    {file = "single-source-0.3.0.tar.gz", hash = "sha256:b12705af958ca99d56ea9ce40bd9cc749378f4fe7ad03b1f9067e29daceef27d"},
+    {file = "single_source-0.3.0-py3-none-any.whl", hash = "sha256:7bc87168ced50f638b6ab0cda4cc1ce9e80ee0e1220014397050d336d021a597"},
+]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1100,4 +1112,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "cab25f1d752db653f0c3a1fda890ece9d385ed9f0d76e2ae733331802c868d2a"
+content-hash = "aa776a028283efe67504eee98c47cf2a338d315021cd1297e0a48e7c6aea90a9"

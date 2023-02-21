@@ -1,4 +1,7 @@
 import os
+from pathlib import Path
+
+from single_source import get_version
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -29,9 +32,9 @@ author = "Marcos Gabarda"
 # built documents.
 #
 # The short X.Y version.
-version = "1.5"
+version = get_version(__name__, Path(__file__).parent.parent)
 # The full version, including alpha/beta/rc tags.
-release = "1.5.0"
+release = version
 
 # -- General configuration ---------------------------------------------------
 
