@@ -121,13 +121,13 @@ class EventHandler:
         if not self.ephemeral:
             # Creates a notification
             Notification = get_notification_model()
-            for receiver in self.audience():
+            for receiver in self.audience().iterator():
                 if self.should_notify(receiver=receiver):
                     notification = Notification(event=self.event, receiver=receiver)
                     notification.save()
         else:
             # Only sends the event to the user
-            for user in self.audience():
+            for user in self.audience().iterator():
                 send_event_to_user(event=self.event, user=user)
 
 
