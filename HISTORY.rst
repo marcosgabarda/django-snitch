@@ -3,7 +3,12 @@
 History
 -------
 
-3.0.0 (2023-xx-xx)
+3.0.1 (2023-02-22)
+++++++++++++++++++
+
+* Fix: Key compatible with Memcache.
+
+3.0.0 (2023-02-22)
 ++++++++++++++++++
 
 * BREAKING CHANGE: Removed ``user`` from notifications, and replaced with ``receiver`` to allow multiple types of audience.

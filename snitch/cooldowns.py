@@ -50,7 +50,7 @@ class CoolDownManager(AbstractCoolDownManager):
         """Get the cache key used by the cool down manager."""
         if receiver.pk is None:
             raise AttributeError("The receiver should have a primary key.")
-        key = f"[{self.prefix}]cool-down-{self.event_handler.event.verb}-{receiver._meta.app_label}-{receiver._meta.model_name}-{receiver.pk}"
+        key = f"{self.prefix}-cool-down-{self.event_handler.event.verb}-{receiver._meta.app_label}-{receiver._meta.model_name}-{receiver.pk}"
         if suffix:
             key = f"{key}-{suffix}"
         return key
