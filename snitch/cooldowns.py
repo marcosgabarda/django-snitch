@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable, Union
+from typing import TYPE_CHECKING, Any, Callable
 
 from django.core.cache import caches
 
@@ -12,14 +12,16 @@ class AbstractCoolDownManager:
     """The cool down manager handles the cool down feature for notifications, to avoid
     sending several notifications to the same user."""
 
+    event_handler: "EventHandler"
+
     def __init__(self, event_handler: "EventHandler") -> None:
         self.event_handler = event_handler
 
-    def should_notify(self, receiver: "models.Model") -> bool:
+    def should_notify(self, receiver: models.Model) -> bool:
         """By default, always notify."""
         return True
 
-    def should_send(self, receiver: "models.Model") -> bool:
+    def should_send(self, receiver: models.Model) -> bool:
         """By default, always send."""
         return True
 
@@ -31,8 +33,8 @@ class CoolDownManager(AbstractCoolDownManager):
 
     prefix: str = "snitch"
     cache_alias: str
-    attempts: Union[int, Callable[["models.Model"], int]]
-    timeout: Union[int, Callable[["models.Model"], int]]
+    attempts: int | Callable[["models.Model"], int] | str
+    timeout: int | Callable[["models.Model"], int] | str
 
     def __init__(self, event_handler: "EventHandler") -> None:
         self.event_handler = event_handler
@@ -60,6 +62,8 @@ class CoolDownManager(AbstractCoolDownManager):
         """
         if callable(self.timeout):
             return self.timeout(receiver)
+        if isinstance(self.timeout, str):
+            return getattr(self.event_handler, self.timeout)(receiver)
         return self.timeout
 
     def _attempts(self, receiver: "models.Model") -> int:
@@ -68,6 +72,8 @@ class CoolDownManager(AbstractCoolDownManager):
         """
         if callable(self.attempts):
             return self.attempts(receiver)
+        if isinstance(self.attempts, str):
+            return getattr(self.event_handler, self.attempts)(receiver)
         return self.attempts
 
     def _check_cool_down(self, receiver: "models.Model", suffix: str = "") -> bool:
