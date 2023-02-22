@@ -19,6 +19,7 @@ notifications.
 
     guide/install
     guide/usage
+    guide/event-handlers
     guide/cool-down
 
 .. toctree::

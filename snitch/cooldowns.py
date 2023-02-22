@@ -1,10 +1,9 @@
 from typing import TYPE_CHECKING, Any, Callable
 
 from django.core.cache import caches
+from django.db import models
 
 if TYPE_CHECKING:
-    from django.db import models
-
     from snitch.handlers import EventHandler
 
 
@@ -76,7 +75,7 @@ class CoolDownManager(AbstractCoolDownManager):
             return getattr(self.event_handler, self.attempts)(receiver)
         return self.attempts
 
-    def _check_cool_down(self, receiver: "models.Model", suffix: str = "") -> bool:
+    def _check_cool_down(self, receiver: models.Model, suffix: str = "") -> bool:
         """Checks the cool down for the receiver."""
         key = self._key(receiver=receiver, suffix=suffix)
         try:
@@ -86,10 +85,10 @@ class CoolDownManager(AbstractCoolDownManager):
             counter = 1
         return counter <= self._attempts(receiver=receiver)
 
-    def should_notify(self, receiver: "models.Model") -> bool:
+    def should_notify(self, receiver: models.Model) -> bool:
         """Uses the default cool down by default."""
         return self._check_cool_down(receiver=receiver, suffix="notify")
 
-    def should_send(self, receiver: "models.Model") -> bool:
+    def should_send(self, receiver: models.Model) -> bool:
         """By default, always send."""
         return self._check_cool_down(receiver=receiver, suffix="send")
