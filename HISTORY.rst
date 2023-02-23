@@ -3,6 +3,15 @@
 History
 -------
 
+3.1.0 (2023-02-23)
+++++++++++++++++++
+
+* Feat: Make the cool down manager optional.
+* Feat: Added click action to payload and event handler.
+* Feat: Added notification ID to payload.
+* Feat: Added default behavior for action ID and action type.
+* Feat: Updated cool down cache key to use a hash function.
+
 3.0.1 (2023-02-22)
 ++++++++++++++++++
 
@@ -12,10 +21,10 @@ History
 ++++++++++++++++++
 
 * BREAKING CHANGE: Removed ``user`` from notifications, and replaced with ``receiver`` to allow multiple types of audience.
-* Feat: Added cool down system
+* Feat: Added cool down system.
 * Feat: Added option to create notifications using an async task.
-* Chore: Updated to use Python 3.10 as minimum version
-* Chore: Updated type hints
+* Chore: Updated to use Python 3.10 as minimum version.
+* Chore: Updated type hints.
 * Chore: Use single source to have the version in a single place.
 
 2.3.0 (2023-02-02)
@@ -29,13 +38,13 @@ History
 2.2.1 (2022-06-17)
 ++++++++++++++++++
 
-* Fix: Version in package and updated dependencies
+* Fix: Version in package and updated dependencies.
 
 2.2.0 (2022-06-17)
 ++++++++++++++++++
 
-* Feat: Support for Django 4.0
-* Feat: Support for django-push-notifications 3.0
+* Feat: Support for Django 4.0.
+* Feat: Support for django-push-notifications 3.0.
 
 2.1.1 (2021-09-15)
 ++++++++++++++++++

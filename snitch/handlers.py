@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Tuple, Type
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -27,15 +28,17 @@ class EventHandler:
 
     ephemeral: bool = False
     dispatch_config: dict = {"args": ("actor", "trigger", "target")}
+    action_attribute: str = "actor"
     action_type: str | None = None
     action_id: str | None = None
+    click_action: str | None = None
     title: str | None = None
     text: str | None = None
     delay: int = 0
     template_email_async: bool = False
 
     notification_backends: list[Type["AbstractBackend"]] = []
-    cool_down_manager_class: Type["AbstractCoolDownManager"] = CoolDownManager
+    cool_down_manager_class: Type["AbstractCoolDownManager"] | None = CoolDownManager
 
     @classmethod
     def extract_actor_trigger_target(cls, method: str, *args, **kwargs):
@@ -53,7 +56,11 @@ class EventHandler:
     def __init__(self, event: "Event", notification: "Notification | None" = None):
         self.event = event
         self.notification = notification
-        self.cool_down_manager = self.cool_down_manager_class(event_handler=self)
+        self.cool_down_manager = (
+            self.cool_down_manager_class(event_handler=self)
+            if self.cool_down_manager_class
+            else None
+        )
 
     def _default_dynamic_text(self) -> str:
         """Makes an event human readable."""
@@ -68,13 +75,17 @@ class EventHandler:
         """Used by the event to create or not the notifications to the audience. If the
         notification is not created, there isn't any notification sent
         (push, email, etc), and there isn't any record in the database."""
-        return self.cool_down_manager.should_notify(receiver=receiver)
+        if self.cool_down_manager:
+            return self.cool_down_manager.should_notify(receiver=receiver)
+        return True
 
     def should_send(self, receiver: "models.Model") -> bool:
         """Used by the notification to send or not the notification to the user. If
         returns False, the notification is created in the database but not sent.
         """
-        return self.cool_down_manager.should_send(receiver=receiver)
+        if self.cool_down_manager:
+            return self.cool_down_manager.should_send(receiver=receiver)
+        return True
 
     def get_text(self) -> str | None:
         """Override to handle different human readable implementations."""
@@ -85,12 +96,30 @@ class EventHandler:
         return self.title
 
     def get_action_type(self) -> str | None:
-        """Gets the action type depending on the verb. To be hooked."""
-        return self.action_type
+        """Gets the action type depending on the verb. The actor by default, since
+        is the only mandatory field.
+        """
+        try:
+            ContentType = apps.get_model("contenttypes.ContentType")
+            action = getattr(self.event, self.action_attribute)
+            content_type = ContentType.objects.get_for_model(action)
+            return f"{content_type.app_label}.{content_type.model}"
+        except AttributeError:
+            return None
 
     def get_action_id(self) -> str | None:
-        """Gets the action depending on the verb. To be hooked."""
-        return self.action_id
+        """Gets the action ID depending on the verb. The actor by default, since
+        is the only mandatory field.
+        """
+        try:
+            action = getattr(self.event, self.action_attribute)
+            return action.pk
+        except AttributeError:
+            return None
+
+    def get_click_action(self) -> str | None:
+        """Gets the click action depending on the verb. To be hooked."""
+        return self.click_action
 
     def get_delay(self) -> int:
         """Returns and in, number of seconds, that corresponds with the time

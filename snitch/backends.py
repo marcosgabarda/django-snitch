@@ -49,9 +49,10 @@ class AbstractBackend:
 class PushNotificationBackend(AbstractBackend):
     """A backend class to send push notifications depending on the platform."""
 
+    action_type: str | None
+    action_id: str | None
+    click_action: str | None
     default_batch_sending: bool = True
-    action_type: str
-    action_id: str
     batch_sending: bool
 
     def __init__(self, *args, **kwargs):
@@ -59,6 +60,7 @@ class PushNotificationBackend(AbstractBackend):
         super().__init__(*args, **kwargs)
         self.action_type = self.handler.get_action_type()
         self.action_id = self.handler.get_action_id()
+        self.click_action = self.handler.get_click_action()
         self.batch_sending = kwargs.get("batch_sending", self.default_batch_sending)
 
     def extra_data(self) -> dict:
@@ -107,6 +109,10 @@ class PushNotificationBackend(AbstractBackend):
             extra["action_type"] = self.action_type
         if self.action_id:
             extra["action_id"] = self.action_id
+        if self.click_action:
+            extra["click_action"] = self.click_action
+        if self.notification:
+            extra["notification"] = self.notification.pk
         extra_data = self.extra_data()
         if extra_data:
             extra.update(extra_data)
@@ -124,6 +130,10 @@ class PushNotificationBackend(AbstractBackend):
             extra["action_type"] = self.action_type
         if self.action_id:
             extra["action_id"] = self.action_id
+        if self.click_action:
+            extra["click_action"] = self.click_action
+        if self.notification:
+            extra["notification"] = self.notification.pk
         extra_data = self.extra_data()
         if extra_data:
             extra.update(extra_data)

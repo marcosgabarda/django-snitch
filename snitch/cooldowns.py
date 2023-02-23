@@ -1,3 +1,4 @@
+import hashlib
 from typing import TYPE_CHECKING, Any, Callable
 
 from django.core.cache import caches
@@ -53,7 +54,9 @@ class CoolDownManager(AbstractCoolDownManager):
         key = f"{self.prefix}-cool-down-{self.event_handler.event.verb}-{receiver._meta.app_label}-{receiver._meta.model_name}-{receiver.pk}"
         if suffix:
             key = f"{key}-{suffix}"
-        return key
+        # Use hash function to ensure compatibility
+        hashed_key = hashlib.sha256(key.encode()).hexdigest()
+        return hashed_key
 
     def _timeout(self, receiver: "models.Model") -> int:
         """Gets the timeout of the cache in seconds, using the time of the cool down.
