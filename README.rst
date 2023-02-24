@@ -2,6 +2,9 @@
 Django Snitch
 =============
 
+.. image:: https://img.shields.io/pypi/v/django-snitch
+   :alt: PyPI
+   
 .. image:: https://codecov.io/gh/marcosgabarda/django-snitch/branch/main/graph/badge.svg?token=YKC608Q1HX 
    :target: https://codecov.io/gh/marcosgabarda/django-snitch
 
