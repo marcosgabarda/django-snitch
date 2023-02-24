@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Tuple, Type
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
@@ -152,6 +151,7 @@ class EventHandler:
         """
         if not self.ephemeral:
             # Creates a notification
+            ContentType = apps.get_model("contenttypes.ContentType")
             Notification = get_notification_model()
             for receiver in self.audience().iterator():
                 if self.should_notify(receiver=receiver):
