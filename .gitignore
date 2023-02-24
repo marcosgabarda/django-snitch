@@ -65,3 +65,6 @@ docs/_build
 build/
 dist/
 .coverage
+
+# Coverage
+coverage.xml
