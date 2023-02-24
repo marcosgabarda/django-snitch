@@ -3,13 +3,14 @@ Django Snitch
 =============
 
 .. image:: https://img.shields.io/pypi/v/django-snitch
-   :alt: PyPI
-   
+    :target: https://pypi.org/project/django-snitch/
+    :alt: PyPI
+
 .. image:: https://codecov.io/gh/marcosgabarda/django-snitch/branch/main/graph/badge.svg?token=YKC608Q1HX 
-   :target: https://codecov.io/gh/marcosgabarda/django-snitch
+    :target: https://codecov.io/gh/marcosgabarda/django-snitch
 
 .. image:: https://img.shields.io/badge/code_style-black-000000.svg
-   :target: https://github.com/ambv/black
+    :target: https://github.com/ambv/black
 
 .. image:: https://readthedocs.org/projects/django-snitch/badge/?version=latest
     :target: https://django-snitch.readthedocs.io/en/latest/?badge=latest
