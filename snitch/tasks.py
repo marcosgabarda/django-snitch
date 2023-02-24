@@ -1,6 +1,5 @@
 from celery import shared_task
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMultiAlternatives
 
@@ -11,6 +10,7 @@ from snitch.helpers import get_notification_model
 def create_notification_task(
     event_pk: int, receiver_id: int, receiver_content_type_id: int
 ) -> int | None:
+    ContentType = apps.get_model("contenttypes.ContentType")
     Event = apps.get_model("snitch.Event")
     Notification = get_notification_model()
     try:
