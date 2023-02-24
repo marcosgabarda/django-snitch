@@ -3,6 +3,11 @@
 History
 -------
 
+3.1.1 (2023-02-24)
+++++++++++++++++++
+
+* Feat: Added missing pull request for async notifications.
+
 3.1.0 (2023-02-23)
 ++++++++++++++++++
 
