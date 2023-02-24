@@ -1,0 +1,9 @@
+name: Workflow - Pull request
+
+on: [pull_request]
+
+jobs:
+  lint_and_test:
+    uses: ./.github/workflows/job-lint-test.yml
+    with:
+      project: snitch

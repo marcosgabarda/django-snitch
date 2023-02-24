@@ -1,0 +1,45 @@
+name: Job - Lint and test
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        required: true
+        type: string
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: curl -sSL https://install.python-poetry.org | python -
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "poetry"
+      - name: Install dependencies
+        run: poetry install -n --no-ansi
+      - name: Check black
+        run: poetry run black --check ${{ inputs.project }}
+      - name: Check isort
+        run: poetry run isort ${{ inputs.project }} --profile black --check
+      - name: Check mypy
+        run: poetry run mypy --ignore-missing-imports ${{ inputs.project }}
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: curl -sSL https://install.python-poetry.org | python -
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "poetry"
+      - name: Install dependencies
+        run: poetry install -n --no-ansi
+      - name: Run tests
+        run: poetry run pytest -n auto ${{ inputs.project }}
