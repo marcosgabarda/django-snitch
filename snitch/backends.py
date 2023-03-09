@@ -142,8 +142,7 @@ class PushNotificationBackend(AbstractBackend):
     def _send_to_devices(self, devices: "models.QuerySet", building_method: Callable):
         """Sends a batch of pushes."""
         try:
-            from push_notifications.apns import APNSError
-            from push_notifications.gcm import GCMError
+            from push_notifications.exceptions import NotificationError
         except ImportError:
             return None
         if self.batch_sending:
@@ -151,10 +150,8 @@ class PushNotificationBackend(AbstractBackend):
             message, extra = building_method()
             try:
                 devices.send_message(message=message, extra=extra)
-            except GCMError:
-                logger.warning("Error sending a batch GCM push message")
-            except APNSError:
-                logger.warning("Error sending a batch APNS push message")
+            except NotificationError:
+                logger.warning("Error sending a batch push message")
             self.post_send()
         else:
             for device in devices:
@@ -162,10 +159,8 @@ class PushNotificationBackend(AbstractBackend):
                 message, extra = building_method()
                 try:
                     device.send_message(message=message, extra=extra)
-                except GCMError:
-                    logger.warning("Error sending a single GCM push message")
-                except APNSError:
-                    logger.warning("Error sending a single APNS push message")
+                except NotificationError:
+                    logger.warning("Error sending a single push message")
                 self.post_send(device=device)
 
         return None
