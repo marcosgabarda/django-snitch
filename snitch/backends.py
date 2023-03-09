@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Callable, Tuple, Type, Union
+from typing import TYPE_CHECKING, Tuple, Type
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User as AuthUser
@@ -139,53 +139,53 @@ class PushNotificationBackend(AbstractBackend):
             extra.update(extra_data)
         return message, extra
 
-    def _send_to_devices(self, devices: "models.QuerySet", building_method: Callable):
+    def _send_to_devices(
+        self, devices: "models.QuerySet", message: str | dict | None, extra: dict = {}
+    ):
         """Sends a batch of pushes."""
-        try:
-            from push_notifications.exceptions import NotificationError
-        except ImportError:
-            return None
         if self.batch_sending:
             self.pre_send()
-            message, extra = building_method()
             try:
                 devices.send_message(message=message, extra=extra)
-            except NotificationError:
-                logger.warning("Error sending a batch push message")
+            except Exception as exception:
+                logger.warning("Error sending a batch push message: %s", str(exception))
             self.post_send()
         else:
             for device in devices:
                 self.pre_send(device=device)
-                message, extra = building_method()
                 try:
                     device.send_message(message=message, extra=extra)
-                except NotificationError:
-                    logger.warning("Error sending a single push message")
+                except Exception as exception:
+                    logger.warning(
+                        "Error sending a single push message: %s", str(exception)
+                    )
                 self.post_send(device=device)
 
         return None
 
-    def _send_gcm(self):
+    def _send_gcm(self) -> None:
         """Send to GCM devices."""
         try:
             from push_notifications.models import GCMDevice
         except ImportError:
             return None
+        message, extra = self._build_gcm_message()
         devices = self.get_devices(GCMDevice)
-        self._send_to_devices(devices=devices, building_method=self._build_gcm_message)
+        self._send_to_devices(devices=devices, message=message, extra=extra)
         return None
 
-    def _send_apns(self):
+    def _send_apns(self) -> None:
         """Send to APNS devices."""
         try:
             from push_notifications.models import APNSDevice
         except ImportError:
             return None
+        message, extra = self._build_apns_message()
         devices = self.get_devices(APNSDevice)
-        self._send_to_devices(devices=devices, building_method=self._build_apns_message)
+        self._send_to_devices(devices=devices, message=message, extra=extra)
         return None
 
-    def send(self):
+    def send(self) -> None:
         """Send message for each platform."""
         if ENABLED_SEND_NOTIFICATIONS:
             self._send_gcm()
