@@ -8,6 +8,8 @@ from tests.app.events import (
     ACTIVATED_EVENT,
     CONFIRMED_EVENT,
     DUMMY_EVENT_NO_BODY,
+    DYNAMIC_SPAM,
+    OTHER_DYNAMIC_SPAM,
     SMALL_EVENT,
     SPAM,
 )
@@ -45,6 +47,16 @@ class Stuff(models.Model):
 
     @snitch.dispatch(SPAM, method=True, config={"kwargs": {"actor": "user"}})
     def spam(self, user):
+        pass
+
+    @snitch.dispatch(DYNAMIC_SPAM, method=True, config={"kwargs": {"actor": "user"}})
+    def dynamic_spam(self, user):
+        pass
+
+    @snitch.dispatch(
+        OTHER_DYNAMIC_SPAM, method=True, config={"kwargs": {"actor": "user"}}
+    )
+    def other_dynamic_spam(self, user):
         pass
 
 

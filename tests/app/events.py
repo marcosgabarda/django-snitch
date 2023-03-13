@@ -1,7 +1,7 @@
 import io
 
 from django.contrib.auth import get_user_model
-
+from django.db import models
 import snitch
 from snitch.backends import EmailNotificationBackend, PushNotificationBackend
 
@@ -12,6 +12,8 @@ EVERY_HOUR = "every hour"
 SMALL_EVENT = "small"
 DUMMY_EVENT_NO_BODY = "dummy no body"
 SPAM = "spam"
+DYNAMIC_SPAM = "dynamic spam"
+OTHER_DYNAMIC_SPAM = "other dynamic spam"
 
 
 @snitch.register(ACTIVATED_EVENT)
@@ -87,3 +89,39 @@ class SpamHandler(snitch.EventHandler):
 
     def audience(self):
         return get_user_model().objects.all()
+
+
+def dynamic_cool_down_attempts(
+    event_handler: snitch.EventHandler, receiver: models.Model
+):
+    return 5
+
+
+def dynamic_cool_down_time(event_handler: snitch.EventHandler, receiver: models.Model):
+    return 5
+
+
+@snitch.register(DYNAMIC_SPAM)
+class DynamicSpamHandler(snitch.EventHandler):
+    cool_down_attempts = dynamic_cool_down_attempts
+    cool_down_time = dynamic_cool_down_time
+    notification_backends = [PushNotificationBackend]
+
+    def audience(self):
+        return get_user_model().objects.all()
+
+
+@snitch.register(OTHER_DYNAMIC_SPAM)
+class OtherDynamicSpamHandler(snitch.EventHandler):
+    cool_down_attempts = "method_dynamic_cool_down_attempts"
+    cool_down_time = "method_dynamic_cool_down_time"
+    notification_backends = [PushNotificationBackend]
+
+    def audience(self):
+        return get_user_model().objects.all()
+
+    def method_dynamic_cool_down_attempts(self, receiver: models.Model):
+        return 5
+
+    def method_dynamic_cool_down_time(self, receiver: models.Model):
+        return 5

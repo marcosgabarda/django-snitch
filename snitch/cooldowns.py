@@ -68,7 +68,7 @@ class CoolDownManager(AbstractCoolDownManager):
             return getattr(self.event_handler, self.timeout)(receiver)
         return self.timeout
 
-    def _attempts(self, receiver: "models.Model") -> int:
+    def _attempts(self, receiver: models.Model) -> int:
         """Gets the number of attempts, using the time of the cool down. If the
         attempts number is a callable, calls the function, passing the receiver.
         """

@@ -15,7 +15,9 @@ from tests.app.events import (
     CONFIRMED_EVENT,
     DUMMY_EVENT,
     DUMMY_EVENT_NO_BODY,
+    DYNAMIC_SPAM,
     EVERY_HOUR,
+    OTHER_DYNAMIC_SPAM,
     SMALL_EVENT,
     SPAM,
     ActivatedHandler,
@@ -259,6 +261,74 @@ class SnitchTestCase(TestCase):
             SpamHandler.cool_down_attempts + 1,
             Notification.objects.filter(
                 event__verb=SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )
+
+    def test_function_cool_down(self):
+        user = UserFactory()
+        stuff = StuffFactory()
+        for _ in range(SpamHandler.cool_down_attempts - 1):
+            stuff.dynamic_spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts - 1,
+            Notification.objects.filter(
+                event__verb=DYNAMIC_SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )
+        stuff.dynamic_spam(user=user)
+        stuff.dynamic_spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts,
+            Notification.objects.filter(
+                event__verb=DYNAMIC_SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )
+        time.sleep(SpamHandler.cool_down_time + 1)
+        stuff.dynamic_spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts + 1,
+            Notification.objects.filter(
+                event__verb=DYNAMIC_SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )
+
+    def test_method_cool_down(self):
+        user = UserFactory()
+        stuff = StuffFactory()
+        for _ in range(SpamHandler.cool_down_attempts - 1):
+            stuff.other_dynamic_spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts - 1,
+            Notification.objects.filter(
+                event__verb=OTHER_DYNAMIC_SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )
+        stuff.other_dynamic_spam(user=user)
+        stuff.other_dynamic_spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts,
+            Notification.objects.filter(
+                event__verb=OTHER_DYNAMIC_SPAM,
+                receiver_id=user.pk,
+                receiver_content_type=ContentType.objects.get_for_model(user),
+            ).count(),
+        )
+        time.sleep(SpamHandler.cool_down_time + 1)
+        stuff.other_dynamic_spam(user=user)
+        self.assertEqual(
+            SpamHandler.cool_down_attempts + 1,
+            Notification.objects.filter(
+                event__verb=OTHER_DYNAMIC_SPAM,
                 receiver_id=user.pk,
                 receiver_content_type=ContentType.objects.get_for_model(user),
             ).count(),

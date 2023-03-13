@@ -26,15 +26,17 @@ to handle the count of how many notifications are sent to a user. You can config
     Default: ``1``
 
     It handles the number of notifications that have to be sent in order to stop the sending. This 
-    can be an int, a callable that returns an integer number or a string and receives an argument. If it's a string,
-    it should reference a method in the handler.
+    can be an int, a callable that returns an integer number or a string and receives two arguments, 
+    and ``snitch.EventHandler`` and a ``receiver`` as a Django Model. If it's a string,
+    it should reference a method in the handler with and argument, the ``receiver`` .
 
 ``cool_down_time``
     Default: ``0``
 
     It handles the number of seconds to wait until the notifications will be send again. This 
-    can be an int, a callable that returns an integer number or a string and receives an argument. If it's a string,
-    it should reference a method in the handler.
+    can be an int, a callable that returns an integer number or a string and receives two arguments, 
+    and ``snitch.EventHandler`` and a ``receiver`` as a Django Model. If it's a string,
+    it should reference a method in the handler with and argument, the ``receiver`` .
 
 ``cool_down_cache_alias``
     Default: ``default``
