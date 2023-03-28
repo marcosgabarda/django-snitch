@@ -212,12 +212,17 @@ class AbstractNotification(TimeStampedModel):
                     backend.send()
                 self.sent = True
                 self.save()
+                # Calls to after send
+                handler.after_send(receiver=self.receiver)
 
     def save(self, *args, **kwargs) -> None:
         """Overwrite to sending push notifications when saving."""
         is_insert: bool = self._state.adding
         super().save(*args, **kwargs)
         if is_insert:
+            # Calls after notify once the notification is inserted
+            handler: "EventHandler" = self.handler()
+            handler.after_notify(receiver=self.receiver)
             self.send(send_async=not NOTIFICATION_EAGER)
 
 

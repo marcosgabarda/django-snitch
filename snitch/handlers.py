@@ -169,6 +169,16 @@ class EventHandler:
             for user in self.audience().iterator():
                 send_event_to_user(event=self.event, user=user)
 
+    def after_send(self, receiver: "models.Model") -> None:
+        """Executes logic after the notification is sent fot the given receiver."""
+        if self.cool_down_manager:
+            return self.cool_down_manager.after_send(receiver=receiver)
+
+    def after_notify(self, receiver: "models.Model") -> None:
+        """Executes logic after the notification is sent fot the given receiver."""
+        if self.cool_down_manager:
+            return self.cool_down_manager.after_notify(receiver=receiver)
+
 
 class EventManager:
     """The event manager in the responsible of handling the registration of the

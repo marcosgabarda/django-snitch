@@ -25,6 +25,14 @@ class AbstractCoolDownManager:
         """By default, always send."""
         return True
 
+    def after_notify(self, receiver: models.Model) -> None:
+        """It does nothing."""
+        ...
+
+    def after_send(self, receiver: models.Model) -> None:
+        """It does nothing."""
+        ...
+
 
 class CoolDownManager(AbstractCoolDownManager):
     """This cool down manager uses the default cache from django to handle the number
@@ -79,19 +87,34 @@ class CoolDownManager(AbstractCoolDownManager):
         return self.attempts
 
     def _check_cool_down(self, receiver: models.Model, suffix: str = "") -> bool:
-        """Checks the cool down for the receiver."""
+        """Checks the cool down for the receiver. It gets the number of current
+        attempts and compares them to the calculated maximum attempts.
+        """
+        key = self._key(receiver=receiver, suffix=suffix)
+        attempts = self._cache.get_or_set(key, 0, self._timeout(receiver=receiver))
+        return attempts < self._attempts(receiver=receiver)
+
+    def _increase_cool_down(self, receiver: models.Model, suffix: str = "") -> int:
+        """Increases by one the number of registered attempts."""
         key = self._key(receiver=receiver, suffix=suffix)
         try:
-            self._cache.get_or_set(key, 0, self._timeout(receiver=receiver))
-            counter = self._cache.incr(key)
+            return self._cache.incr(key)
         except ValueError:
-            counter = 1
-        return counter <= self._attempts(receiver=receiver)
+            self._cache.set(key, 1, self._timeout(receiver=receiver))
+            return 1
 
     def should_notify(self, receiver: models.Model) -> bool:
-        """Uses the default cool down by default."""
+        """Uses the check cool down for notify action."""
         return self._check_cool_down(receiver=receiver, suffix="notify")
 
     def should_send(self, receiver: models.Model) -> bool:
-        """By default, always send."""
+        """Uses the check cool down for send action."""
         return self._check_cool_down(receiver=receiver, suffix="send")
+
+    def after_notify(self, receiver: models.Model) -> None:
+        """Uses the increase cool down for notify action."""
+        self._increase_cool_down(receiver=receiver, suffix="notify")
+
+    def after_send(self, receiver: models.Model) -> None:
+        """Uses the increase cool down for send action."""
+        self._increase_cool_down(receiver=receiver, suffix="send")

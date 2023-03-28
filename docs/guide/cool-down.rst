@@ -29,7 +29,7 @@ to handle the count of how many notifications are sent to a user. You can config
     can be an int, a callable that returns an integer number or a string and receives two arguments, 
     and ``snitch.EventHandler`` and a ``receiver`` as a Django Model. If it's a string,
     it should reference a method in the handler with and argument, the ``receiver`` .
-
+    
 ``cool_down_time``
     Default: ``0``
 
