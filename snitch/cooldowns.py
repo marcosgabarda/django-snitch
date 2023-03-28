@@ -55,14 +55,18 @@ class CoolDownManager(AbstractCoolDownManager):
         """Gets the cache proxy using the alias."""
         return caches[self.cache_alias]
 
-    def _key(self, receiver: "models.Model", suffix: str = "") -> str:
+    def _key(
+        self, receiver: "models.Model", suffix: str = "", use_hash: bool = True
+    ) -> str:
         """Get the cache key used by the cool down manager."""
         if receiver.pk is None:
             raise AttributeError("The receiver should have a primary key.")
         key = f"{self.prefix}-cool-down-{self.event_handler.event.verb}-{receiver._meta.app_label}-{receiver._meta.model_name}-{receiver.pk}"
         if suffix:
             key = f"{key}-{suffix}"
-        # Use hash function to ensure compatibility
+        if not use_hash:
+            return key
+        # If indicated, use hash function to ensure compatibility
         hashed_key = hashlib.sha256(key.encode()).hexdigest()
         return hashed_key
 
