@@ -53,8 +53,12 @@ class TemplateEmailMessage:
                 setattr(self, attr_name, attr)
         self.to = to if isinstance(to, (list, tuple)) else [to]
         self.reply_to = reply_to
-        self.bcc = bcc if isinstance(bcc, (list, tuple)) else [bcc]
-        self.cc = cc if isinstance(cc, (list, tuple)) else [cc]
+        self.bcc = (
+            bcc if isinstance(bcc, (list, tuple)) else [bcc] if bcc is not None else []
+        )
+        self.cc = (
+            cc if isinstance(cc, (list, tuple)) else [cc] if bcc is not None else []
+        )
         self.subject = self.default_subject if subject is None else subject
         self.from_email = self.default_from_email if from_email is None else from_email
         self.attaches = [] if attaches is None else attaches
