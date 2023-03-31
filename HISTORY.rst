@@ -3,6 +3,11 @@
 History
 -------
 
+3.1.7 (2023-03-31)
+++++++++++++++++++
+
+* Fix: TemplateEmailMeesage bcc and cc parameters initiation #21
+
 3.1.1 (2023-02-24)
 ++++++++++++++++++
 

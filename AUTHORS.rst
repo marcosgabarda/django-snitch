@@ -14,3 +14,5 @@ Collaborators
 * Victor Borràs <@vborras>
 * Salvador Marí <@saruba>
 * Andrés Reverón <@systemallica>
+* Tino Martínez <@tinom9>
+
