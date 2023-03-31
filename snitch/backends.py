@@ -6,7 +6,7 @@ from django.contrib.auth.models import User as AuthUser
 from django.db import models
 
 from snitch.emails import TemplateEmailMessage
-from snitch.settings import ENABLED_SEND_NOTIFICATIONS
+from snitch.settings import ENABLED_SEND_EMAILS, ENABLED_SEND_NOTIFICATIONS
 
 if TYPE_CHECKING:
     from push_notifications.models import APNSDevice, GCMDevice
@@ -232,7 +232,7 @@ class EmailNotificationBackend(AbstractBackend):
 
     def send(self):
         """Sends the email."""
-        if ENABLED_SEND_NOTIFICATIONS:
+        if ENABLED_SEND_EMAILS:
             # Gets the handler to extract the arguments from template_email_kwargs
             kwargs = self.email_kwargs()
             if kwargs:

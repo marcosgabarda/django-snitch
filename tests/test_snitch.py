@@ -1,7 +1,9 @@
 import time
 import warnings
+from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
+from django.core import mail
 from django.test import TestCase
 from django_celery_beat.models import DAYS
 
@@ -186,6 +188,7 @@ class SnitchTestCase(TestCase):
             self.assertEqual(email.attaches, [])
             self.assertEqual(email.default_context, {})
             email.send(use_async=False)
+            self.assertEqual(len(mail.outbox), 1)
             exception = False
         except Exception:
             exception = True
@@ -203,6 +206,7 @@ class SnitchTestCase(TestCase):
             self.assertEqual(email.cc, ["test@test.com"])
             self.assertEqual(email.bcc, ["test@tost.com"])
             self.assertIsNone(email.reply_to)
+            self.assertEqual(len(mail.outbox), 1)
             exception = False
         except Exception:
             exception = True
@@ -220,10 +224,17 @@ class SnitchTestCase(TestCase):
             self.assertEqual(email.cc, ["test@test.com"])
             self.assertEqual(email.bcc, ["test@tost.com"])
             self.assertIsNone(email.reply_to)
+            self.assertEqual(len(mail.outbox), 1)
             exception = False
         except Exception as exc:
             exception = True
         self.assertFalse(exception)
+
+    @mock.patch("snitch.emails.ENABLED_SEND_EMAILS", False)
+    def test_not_send_email_when_disabled(self):
+        email = WelcomeEmail(to="test@example.com", context={})
+        email.send(use_async=False)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_dispatch_event_without_title(self):
         self.assertEqual(0, Event.objects.filter(verb=DUMMY_EVENT_NO_BODY).count())

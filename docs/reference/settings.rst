@@ -15,7 +15,7 @@ SNITCH_NOTIFICATION_MODEL
 SNITCH_ENABLED_SEND_NOTIFICATIONS
     Default: ``True``
 
-    Activate or deactivate the creation of notifications.
+    Activate or deactivate the push notification sending.
 
 SNITCH_ENABLED_SEND_EMAILS
     Default: ``True``
