@@ -178,6 +178,13 @@ class SnitchTestCase(TestCase):
     def test_send_email(self):
         try:
             email = WelcomeEmail(to="test@example.com", context={})
+            self.assertEqual(email.template_name, email.default_template_name)
+            self.assertEqual(email.subject, email.default_subject)
+            self.assertEqual(email.from_email, email.default_from_email)
+            self.assertEqual(email.bcc, [])
+            self.assertEqual(email.cc, [])
+            self.assertEqual(email.attaches, [])
+            self.assertEqual(email.default_context, {})
             email.send(use_async=False)
             exception = False
         except Exception:
