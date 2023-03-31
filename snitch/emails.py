@@ -8,7 +8,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import translation
 
-from snitch.settings import ENABLED_SEND_NOTIFICATIONS
+from snitch.settings import ENABLED_SEND_EMAILS
 from snitch.tasks import send_email_asynchronously
 
 
@@ -137,7 +137,7 @@ class TemplateEmailMessage:
 
     def send(self, use_async: bool = True, language: str | None = None):
         """Sends the email at the moment or using a Celery task."""
-        if not ENABLED_SEND_NOTIFICATIONS:
+        if not ENABLED_SEND_EMAILS:
             return
 
         use_async = not self.attaches and use_async

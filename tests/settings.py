@@ -46,5 +46,5 @@ PUSH_NOTIFICATIONS_SETTINGS = {
 # SNITCH SETTINGS
 # ------------------------------------------------------------------------------
 SNITCH_NOTIFICATION_MODEL = "app.Notification"
-SNITCH_ENABLED_SEND_EMAILS = False
+SNITCH_ENABLED_SEND_EMAILS = True
 SNITCH_NOTIFICATION_EAGER = True

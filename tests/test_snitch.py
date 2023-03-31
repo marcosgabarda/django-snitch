@@ -1,7 +1,9 @@
 import time
 import warnings
+from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
+from django.core import mail
 from django.test import TestCase
 from django_celery_beat.models import DAYS
 
@@ -176,54 +178,48 @@ class SnitchTestCase(TestCase):
         )
 
     def test_send_email(self):
-        try:
-            email = WelcomeEmail(to="test@example.com", context={})
-            self.assertEqual(email.template_name, email.default_template_name)
-            self.assertEqual(email.subject, email.default_subject)
-            self.assertEqual(email.from_email, email.default_from_email)
-            self.assertEqual(email.bcc, [])
-            self.assertEqual(email.cc, [])
-            self.assertEqual(email.attaches, [])
-            self.assertEqual(email.default_context, {})
-            email.send(use_async=False)
-            exception = False
-        except Exception:
-            exception = True
-        self.assertFalse(exception)
+        email = WelcomeEmail(to="test@example.com", context={})
+        self.assertEqual(email.template_name, email.default_template_name)
+        self.assertEqual(email.subject, email.default_subject)
+        self.assertEqual(email.from_email, email.default_from_email)
+        self.assertEqual(email.bcc, [])
+        self.assertEqual(email.cc, [])
+        self.assertEqual(email.attaches, [])
+        self.assertEqual(email.default_context, {})
+        email.send(use_async=False)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_send_email_with_cc_and_bcc(self):
-        try:
-            email = WelcomeEmail(
-                to="test@example.com",
-                cc=["test@test.com"],
-                bcc=["test@tost.com"],
-                context={},
-            )
-            email.send(use_async=False)
-            self.assertEqual(email.cc, ["test@test.com"])
-            self.assertEqual(email.bcc, ["test@tost.com"])
-            self.assertIsNone(email.reply_to)
-            exception = False
-        except Exception:
-            exception = True
-        self.assertFalse(exception)
+        email = WelcomeEmail(
+            to="test@example.com",
+            cc=["test@test.com"],
+            bcc=["test@tost.com"],
+            context={},
+        )
+        email.send(use_async=False)
+        self.assertEqual(email.cc, ["test@test.com"])
+        self.assertEqual(email.bcc, ["test@tost.com"])
+        self.assertIsNone(email.reply_to)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_send_email_with_non_list_addresses(self):
-        try:
-            email = WelcomeEmail(
-                to="test@example.com",
-                cc="test@test.com",
-                bcc="test@tost.com",
-                context={},
-            )
-            email.send(use_async=False)
-            self.assertEqual(email.cc, ["test@test.com"])
-            self.assertEqual(email.bcc, ["test@tost.com"])
-            self.assertIsNone(email.reply_to)
-            exception = False
-        except Exception as exc:
-            exception = True
-        self.assertFalse(exception)
+        email = WelcomeEmail(
+            to="test@example.com",
+            cc="test@test.com",
+            bcc="test@tost.com",
+            context={},
+        )
+        email.send(use_async=False)
+        self.assertEqual(email.cc, ["test@test.com"])
+        self.assertEqual(email.bcc, ["test@tost.com"])
+        self.assertIsNone(email.reply_to)
+        self.assertEqual(len(mail.outbox), 1)
+
+    @mock.patch("snitch.emails.ENABLED_SEND_EMAILS", False)
+    def test_not_send_email_when_disabled(self):
+        email = WelcomeEmail(to="test@example.com", context={})
+        email.send(use_async=False)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_dispatch_event_without_title(self):
         self.assertEqual(0, Event.objects.filter(verb=DUMMY_EVENT_NO_BODY).count())
