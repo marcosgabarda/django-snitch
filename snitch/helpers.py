@@ -15,10 +15,10 @@ if TYPE_CHECKING:
     from snitch.models import Event
 
 
-def get_notification_model():
+def get_notification_model(apps=None):
     """Return the Notification model that is active in this project."""
     try:
-        return django_apps.get_model(NOTIFICATION_MODEL, require_ready=False)
+        return (apps or django_apps).get_model(NOTIFICATION_MODEL, require_ready=False)
     except ValueError:
         raise ImproperlyConfigured(
             "NOTIFICATION_MODEL must be of the form 'app_label.model_name'"
