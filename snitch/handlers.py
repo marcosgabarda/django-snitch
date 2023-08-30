@@ -7,7 +7,6 @@ from django.db import models
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
-from snitch.cooldowns import CoolDownManager
 from snitch.exceptions import HandlerError
 from snitch.helpers import (
     extract_actor_trigger_target,
@@ -40,7 +39,7 @@ class EventHandler:
     notification_creation_async: bool = False
 
     notification_backends: list[Type["AbstractBackend"]] = []
-    cool_down_manager_class: Type["AbstractCoolDownManager"] | None = CoolDownManager
+    cool_down_manager_class: Type["AbstractCoolDownManager"] | None = None
 
     @classmethod
     def extract_actor_trigger_target(cls, method: str, *args, **kwargs):

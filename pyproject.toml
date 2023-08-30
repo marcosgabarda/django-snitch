@@ -1,14 +1,12 @@
 [tool.poetry]
 name = "django-snitch"
-version = "3.1.8"
+version = "3.2.0"
 description = "Django app made to integrate generic events that create notifications that can be sent to users using several backends."
 readme = "README.rst"
 authors = ["Marcos Gabarda <hey@marcosgabarda.com>"]
 license = "MIT"
 homepage = "https://github.com/marcosgabarda/django-snitch"
-packages = [
-    { include = "snitch" },
-]
+packages = [{ include = "snitch" }]
 classifiers = [
     "Environment :: Web Environment",
     "Framework :: Django",
@@ -18,22 +16,22 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 django = ">=3.0.0"
-django-model-utils = "^4.1.1"
+django-model-utils = ">=4.1.1"
 bleach = ">=4.1.0"
-celery = "^5.0.0"
-django-celery-beat = "^2.4.0"
+celery = ">=5.0.0"
+django-celery-beat = ">=2.4.0"
 django-push-notifications = ">=2.0.0"
-single-source = "^0.3.0"
+single-source = ">=0.3.0"
 
 [tool.poetry.group.dev.dependencies]
-pylint = "^2.16.2"
-pytest = "^7.2.1"
-black = "^23.1.0"
+pylint = "^2.17.5"
+pytest = "^7.4.0"
+black = "^23.7.0"
 factory_boy = "^3.2.1"
-django-test-plus = "^2.2.1"
+django-test-plus = "^2.2.3"
 pytest-django = "^4.5.2"
-pytest-cov = "^4.0.0"
-mypy = "^1.0.1"
+pytest-cov = "^4.1.0"
+mypy = "^1.5.1"
 isort = "^5.12.0"
 types-bleach = "^6.0.0.0"
 autoflake = "^2.0.1"

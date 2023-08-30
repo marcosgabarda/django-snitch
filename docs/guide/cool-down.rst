@@ -14,6 +14,8 @@ notification will be sent to a user in a time period.
 
     @snitch.register(SPAM)
     class SpamHandler(snitch.EventHandler):
+    
+        cool_down_manager_class = snitch.CoolDownManager
         cool_down_attempts = 5
         cool_down_time = 5  # In seconds
         notification_backends = [PushNotificationBackend]
@@ -21,6 +23,13 @@ notification will be sent to a user in a time period.
 It uses `Django’s cache framework <https://docs.djangoproject.com/en/4.0/topics/cache/#the-low-level-cache-api>`_ 
 to handle the count of how many notifications are sent to a user. You can configure 
 
+
+``cool_down_manager_class``
+    Default: ``None```
+
+    Indicates the class that should be used to handle the cool down. It is set to 
+    ``None`` by default, and you should specify the class to use this function. 
+    Django-snitch comes with the class ``snitch.CoolDownManager`` that can be used.
 
 ``cool_down_attempts``
     Default: ``1``
@@ -41,7 +50,8 @@ to handle the count of how many notifications are sent to a user. You can config
 ``cool_down_cache_alias``
     Default: ``default``
 
-    This property allow to use a different alias for the cache.
+    This property is used by ``snitch.CoolDownManager`` and allows to use a different 
+    alias for the cache.
 
 The cache key is created using the event verb and the receiver data, app label, model name and primary key.
 

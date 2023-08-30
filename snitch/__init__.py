@@ -10,6 +10,7 @@ import django
 from django.utils.module_loading import autodiscover_modules
 from single_source import get_version
 
+from snitch.cooldowns import CoolDownManager
 from snitch.decorators import dispatch, register
 from snitch.handlers import EventHandler, manager
 from snitch.helpers import explicit_dispatch, get_notification_model
@@ -21,6 +22,7 @@ __all__ = [
     "dispatch",
     "explicit_dispatch",
     "get_notification_model",
+    "CoolDownManager",
 ]
 __version__ = get_version(__name__, Path(__file__).parent.parent) or "1.0.0"
 __version_info__ = tuple(
