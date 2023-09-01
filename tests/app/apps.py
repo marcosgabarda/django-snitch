@@ -8,6 +8,6 @@ class TestAppConfig(AppConfig):
 
     def ready(self):
         try:
-            import tests.app.signals
+            import tests.app.signals  # noqa
         except ImportError:
             pass

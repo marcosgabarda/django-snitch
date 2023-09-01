@@ -13,6 +13,9 @@ INSTALLED_APPS = [
     "tests.app",
 ]
 
+# Celery
+INSTALLED_APPS += ["tests.taskapp.celery.CeleryAppConfig"]
+
 # Schedules
 INSTALLED_APPS += ["django_celery_beat", "snitch.schedules"]
 
@@ -43,8 +46,12 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     "APPLICATIONS": {"snitch": {"PLATFORM": "FCM", "API_KEY": ""}},
 }
 
+# CELERY
+# ------------------------------------------------------------------------------
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+
 # SNITCH SETTINGS
 # ------------------------------------------------------------------------------
 SNITCH_NOTIFICATION_MODEL = "app.Notification"
 SNITCH_ENABLED_SEND_EMAILS = True
-SNITCH_NOTIFICATION_EAGER = True

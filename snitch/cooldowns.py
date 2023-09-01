@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable
 from django.core.cache import caches
 from django.db import models
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from snitch.handlers import EventHandler
 
 
@@ -13,9 +13,33 @@ class AbstractCoolDownManager:
     sending several notifications to the same user."""
 
     event_handler: "EventHandler"
+    attempts: int | Callable[["models.Model"], int] | str
+    timeout: int | Callable[["models.Model"], int] | str
 
     def __init__(self, event_handler: "EventHandler") -> None:
         self.event_handler = event_handler
+        self.attempts = getattr(event_handler, "cool_down_attempts", 1)
+        self.timeout = getattr(event_handler, "cool_down_time", 0)
+
+    def _timeout(self, receiver: "models.Model") -> int:
+        """Gets the timeout in seconds, using the time of the cool down.
+        If the timeout is a callable, calls the function, passing the receiver.
+        """
+        if callable(self.timeout):
+            return self.timeout(receiver)
+        if isinstance(self.timeout, str):
+            return getattr(self.event_handler, self.timeout)(receiver)
+        return self.timeout
+
+    def _attempts(self, receiver: models.Model) -> int:
+        """Gets the number of attempts, using the time of the cool down. If the
+        attempts number is a callable, calls the function, passing the receiver.
+        """
+        if callable(self.attempts):
+            return self.attempts(receiver)
+        if isinstance(self.attempts, str):
+            return getattr(self.event_handler, self.attempts)(receiver)
+        return self.attempts
 
     def should_notify(self, receiver: models.Model) -> bool:
         """By default, always notify."""
@@ -45,9 +69,7 @@ class CoolDownManager(AbstractCoolDownManager):
     timeout: int | Callable[["models.Model"], int] | str
 
     def __init__(self, event_handler: "EventHandler") -> None:
-        self.event_handler = event_handler
-        self.attempts = getattr(event_handler, "cool_down_attempts", 1)
-        self.timeout = getattr(event_handler, "cool_down_time", 0)
+        super().__init__(event_handler=event_handler)
         self.cache_alias = getattr(event_handler, "cool_down_cache_alias", "default")
 
     @property
@@ -69,26 +91,6 @@ class CoolDownManager(AbstractCoolDownManager):
         # If indicated, use hash function to ensure compatibility
         hashed_key = hashlib.sha256(key.encode()).hexdigest()
         return hashed_key
-
-    def _timeout(self, receiver: "models.Model") -> int:
-        """Gets the timeout of the cache in seconds, using the time of the cool down.
-        If the timeout is a callable, calls the function, passing the receiver.
-        """
-        if callable(self.timeout):
-            return self.timeout(receiver)
-        if isinstance(self.timeout, str):
-            return getattr(self.event_handler, self.timeout)(receiver)
-        return self.timeout
-
-    def _attempts(self, receiver: models.Model) -> int:
-        """Gets the number of attempts, using the time of the cool down. If the
-        attempts number is a callable, calls the function, passing the receiver.
-        """
-        if callable(self.attempts):
-            return self.attempts(receiver)
-        if isinstance(self.attempts, str):
-            return getattr(self.event_handler, self.attempts)(receiver)
-        return self.attempts
 
     def _check_cool_down(self, receiver: models.Model, suffix: str = "") -> bool:
         """Checks the cool down for the receiver. It gets the number of current

@@ -1,4 +1,6 @@
+from factory import fuzzy
 from factory.django import DjangoModelFactory
+from push_notifications.models import GCMDevice
 
 from tests.app.models import Actor, OtherStuff, Stuff, Target, Trigger
 
@@ -26,3 +28,10 @@ class TargetFactory(DjangoModelFactory):
 class OtherStuffFactory(DjangoModelFactory):
     class Meta:
         model = OtherStuff
+
+
+class GCMDeviceFactory(DjangoModelFactory):
+    registration_id = fuzzy.FuzzyText()
+
+    class Meta:
+        model = GCMDevice

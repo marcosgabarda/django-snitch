@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Tuple, Type
+from typing import TYPE_CHECKING, Callable, Type
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User as AuthUser
@@ -8,7 +8,7 @@ from django.db import models
 from snitch.emails import TemplateEmailMessage
 from snitch.settings import ENABLED_SEND_NOTIFICATIONS
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from push_notifications.models import APNSDevice, GCMDevice
 
     from snitch.handlers import EventHandler
@@ -63,11 +63,27 @@ class PushNotificationBackend(AbstractBackend):
         self.click_action = self.handler.get_click_action()
         self.batch_sending = kwargs.get("batch_sending", self.default_batch_sending)
 
-    def extra_data(self) -> dict:
+    def extra_data(self, devices: "models.QuerySet | models.Model") -> dict:
         """Gets the extra data to add to the push, to be hooked if needed. It tries to
         get an initial dict from the handler.
         """
-        return self.handler.get_extra_data()
+        extra_data = self.handler.get_extra_data(receivers=devices)
+        # Add to the extra data the localization keys and args if use_localization_keys
+        # is active
+        if self.handler.use_localization_keys:
+            extra_data["title_loc_key"] = self.handler.get_title_localization_key(
+                receivers=devices
+            )
+            extra_data["title_loc_args"] = self.handler.get_title_localization_args(
+                receivers=devices
+            )
+            extra_data["body_loc_key"] = self.handler.get_text_localization_key(
+                receivers=devices
+            )
+            extra_data["body_loc_args"] = self.handler.get_text_localization_args(
+                receivers=devices
+            )
+        return extra_data
 
     def get_devices(
         self,
@@ -98,11 +114,13 @@ class PushNotificationBackend(AbstractBackend):
         """
         return None
 
-    def _build_gcm_message(self) -> Tuple[str | None, dict]:
+    def _build_gcm_message(
+        self, devices: "models.QuerySet | models.Model"
+    ) -> tuple[str | None, dict]:
         """Creates the message for GCM."""
-        message: str | None = self.handler.get_text()
+        message: str | None = self.handler.get_text(receivers=devices)
         extra = {}
-        title: str | None = self.handler.get_title()
+        title: str | None = self.handler.get_title(receivers=devices)
         if title:
             extra["title"] = title
         if self.action_type:
@@ -113,17 +131,19 @@ class PushNotificationBackend(AbstractBackend):
             extra["click_action"] = self.click_action
         if self.notification:
             extra["notification"] = self.notification.pk
-        extra_data = self.extra_data()
+        extra_data = self.extra_data(devices=devices)
         if extra_data:
             extra.update(extra_data)
         return message, extra
 
-    def _build_apns_message(self) -> Tuple[str | dict | None, dict]:
+    def _build_apns_message(
+        self, devices: "models.QuerySet | models.Model"
+    ) -> tuple[str | dict | None, dict]:
         """Creates the message for APNS."""
-        text: str | None = self.handler.get_text()
+        text: str | None = self.handler.get_text(receivers=devices)
         message: str | dict | None = text
         extra: dict = {}
-        title: str | None = self.handler.get_title()
+        title: str | None = self.handler.get_title(receivers=devices)
         if title:
             message = {"title": title, "body": text}
         if self.action_type:
@@ -134,18 +154,23 @@ class PushNotificationBackend(AbstractBackend):
             extra["click_action"] = self.click_action
         if self.notification:
             extra["notification"] = self.notification.pk
-        extra_data = self.extra_data()
+        extra_data = self.extra_data(devices=devices)
         if extra_data:
             extra.update(extra_data)
         return message, extra
 
     def _send_to_devices(
-        self, devices: "models.QuerySet", message: str | dict | None, extra: dict = {}
+        self,
+        devices: "models.QuerySet",
+        message_builder: Callable[
+            ["models.QuerySet | models.Model"], tuple[str | dict | None, dict]
+        ],
     ):
         """Sends a batch of pushes."""
         if self.batch_sending:
             self.pre_send()
             try:
+                message, extra = message_builder(devices)
                 devices.send_message(message=message, extra=extra)
             except Exception as exception:
                 logger.warning("Error sending a batch push message: %s", str(exception))
@@ -154,6 +179,7 @@ class PushNotificationBackend(AbstractBackend):
             for device in devices:
                 self.pre_send(device=device)
                 try:
+                    message, extra = message_builder(device)
                     device.send_message(message=message, extra=extra)
                 except Exception as exception:
                     logger.warning(
@@ -169,9 +195,8 @@ class PushNotificationBackend(AbstractBackend):
             from push_notifications.models import GCMDevice
         except ImportError:
             return None
-        message, extra = self._build_gcm_message()
         devices = self.get_devices(GCMDevice)
-        self._send_to_devices(devices=devices, message=message, extra=extra)
+        self._send_to_devices(devices=devices, message_builder=self._build_gcm_message)
         return None
 
     def _send_apns(self) -> None:
@@ -180,9 +205,8 @@ class PushNotificationBackend(AbstractBackend):
             from push_notifications.models import APNSDevice
         except ImportError:
             return None
-        message, extra = self._build_apns_message()
         devices = self.get_devices(APNSDevice)
-        self._send_to_devices(devices=devices, message=message, extra=extra)
+        self._send_to_devices(devices=devices, message_builder=self._build_apns_message)
         return None
 
     def send(self) -> None:

@@ -9,6 +9,8 @@ from tests.app.events import (
     CONFIRMED_EVENT,
     DUMMY_EVENT_NO_BODY,
     DYNAMIC_SPAM,
+    LOCALIZED_EVENT,
+    NO_SPAM,
     OTHER_DYNAMIC_SPAM,
     SMALL_EVENT,
     SPAM,
@@ -49,6 +51,10 @@ class Stuff(models.Model):
     def spam(self, user):
         pass
 
+    @snitch.dispatch(NO_SPAM, method=True, config={"kwargs": {"actor": "user"}})
+    def no_spam(self, user):
+        pass
+
     @snitch.dispatch(DYNAMIC_SPAM, method=True, config={"kwargs": {"actor": "user"}})
     def dynamic_spam(self, user):
         pass
@@ -59,26 +65,22 @@ class Stuff(models.Model):
     def other_dynamic_spam(self, user):
         pass
 
+    @snitch.dispatch(LOCALIZED_EVENT)
+    def localized(self):
+        pass
+
 
 class Actor(models.Model):
     """Dummy actor."""
-
-    pass
 
 
 class Trigger(models.Model):
     """Dummy trigger."""
 
-    pass
-
 
 class Target(models.Model):
     """Dummy target."""
 
-    pass
-
 
 class OtherStuff(TimeStampedModel):
     """Other stuff."""
-
-    pass

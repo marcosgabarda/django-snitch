@@ -10,7 +10,7 @@ from django.utils import translation
 from snitch.constants import DEFAULT_CONFIG
 from snitch.settings import NOTIFICATION_MODEL
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from snitch.handlers import EventHandler
     from snitch.models import Event
 

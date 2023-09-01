@@ -9,12 +9,15 @@ from snitch.backends import EmailNotificationBackend, PushNotificationBackend
 ACTIVATED_EVENT = "activated"
 CONFIRMED_EVENT = "confirmed"
 DUMMY_EVENT = "dummy"
+DUMMY_EVENT_ASYNC = "dummy async"
 EVERY_HOUR = "every hour"
 SMALL_EVENT = "small"
 DUMMY_EVENT_NO_BODY = "dummy no body"
 SPAM = "spam"
+NO_SPAM = "no spam"
 DYNAMIC_SPAM = "dynamic spam"
 OTHER_DYNAMIC_SPAM = "other dynamic spam"
+LOCALIZED_EVENT = "localized"
 
 
 @snitch.register(ACTIVATED_EVENT)
@@ -25,7 +28,6 @@ class ActivatedHandler(snitch.EventHandler):
 
     # Custom configuration for email backend
     template_email_kwargs = {"template_name": "email.html"}
-    template_email_async = False
 
 
 @snitch.register(CONFIRMED_EVENT)
@@ -35,7 +37,6 @@ class ConfirmedHandler(snitch.EventHandler):
 
     # Custom configuration for email backend
     template_email_kwargs = {"template_name": "email.html"}
-    template_email_async = False
 
     def audience(self):
         return get_user_model().objects.all()
@@ -51,6 +52,16 @@ class ConfirmedHandler(snitch.EventHandler):
             "template_name": "email.html",
             "attaches": [("dummy.txt", io.StringIO("dummy"), "text/plain")],
         }
+
+
+@snitch.register(DUMMY_EVENT_ASYNC)
+class DummyAsyncHandler(snitch.EventHandler):
+    title = "Dummy event"
+    delay = 60
+    notification_creation_async = True
+
+    def audience(self):
+        return get_user_model().objects.all()
 
 
 @snitch.register(DUMMY_EVENT)
@@ -70,22 +81,37 @@ class SmallHandler(snitch.EventHandler):
     notification_backends = [EmailNotificationBackend]
     title = "Small event!"
     template_email_kwargs = {"template_name": "email.html"}
-    template_email_async = False
 
 
 @snitch.register(DUMMY_EVENT_NO_BODY)
 class DummyNoBodyHandler(snitch.EventHandler):
-    def get_title(self) -> str | None:
+    def get_title(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> str | None:
         return None
 
-    def get_text(self) -> str | None:
+    def get_text(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> str | None:
         return None
 
 
 @snitch.register(SPAM)
 class SpamHandler(snitch.EventHandler):
+    cool_down_manager_class = snitch.CoolDownManager
     cool_down_attempts = 5
     cool_down_time = 5
+    notification_backends = [PushNotificationBackend]
+
+    def audience(self):
+        return get_user_model().objects.all()
+
+
+@snitch.register(NO_SPAM)
+class NoSpamHandler(snitch.EventHandler):
+    cool_down_manager_class = snitch.CoolDownManager
+    cool_down_attempts = 1
+    cool_down_time = 0
     notification_backends = [PushNotificationBackend]
 
     def audience(self):
@@ -104,6 +130,7 @@ def dynamic_cool_down_time(event_handler: snitch.EventHandler, receiver: models.
 
 @snitch.register(DYNAMIC_SPAM)
 class DynamicSpamHandler(snitch.EventHandler):
+    cool_down_manager_class = snitch.CoolDownManager
     cool_down_attempts = dynamic_cool_down_attempts
     cool_down_time = dynamic_cool_down_time
     notification_backends = [PushNotificationBackend]
@@ -114,6 +141,7 @@ class DynamicSpamHandler(snitch.EventHandler):
 
 @snitch.register(OTHER_DYNAMIC_SPAM)
 class OtherDynamicSpamHandler(snitch.EventHandler):
+    cool_down_manager_class = snitch.CoolDownManager
     cool_down_attempts = "method_dynamic_cool_down_attempts"
     cool_down_time = "method_dynamic_cool_down_time"
     notification_backends = [PushNotificationBackend]
@@ -126,3 +154,12 @@ class OtherDynamicSpamHandler(snitch.EventHandler):
 
     def method_dynamic_cool_down_time(self, receiver: models.Model):
         return 5
+
+
+@snitch.register(LOCALIZED_EVENT)
+class LocalizedHandler(snitch.EventHandler):
+    notification_backends = [PushNotificationBackend]
+    use_localization_keys = True
+
+    def audience(self):
+        return get_user_model().objects.all()

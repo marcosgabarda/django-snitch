@@ -3,15 +3,21 @@
 History
 -------
 
+3.2.0 (2023-08-31)
+++++++++++++++++++
+
+* Feat: Now the cool down manager is not set by default, you should define the manager class.
+* Chore: Refactor in unit tests.
+
 3.1.8 (2023-06-22)
 ++++++++++++++++++
 
-* Fix: Fixed user to receiver migration
+* Fix: Fixed user to receiver migration.
 
 3.1.7 (2023-03-31)
 ++++++++++++++++++
 
-* Fix: TemplateEmailMessage bcc and cc parameters initiation #21
+* Fix: TemplateEmailMessage bcc and cc parameters initiation #21.
 
 3.1.1 (2023-02-24)
 ++++++++++++++++++

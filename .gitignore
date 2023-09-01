@@ -68,3 +68,4 @@ dist/
 
 # Coverage
 coverage.xml
+cov.xml
