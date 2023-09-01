@@ -17,6 +17,7 @@ SPAM = "spam"
 NO_SPAM = "no spam"
 DYNAMIC_SPAM = "dynamic spam"
 OTHER_DYNAMIC_SPAM = "other dynamic spam"
+LOCALIZED_EVENT = "localized"
 
 
 @snitch.register(ACTIVATED_EVENT)
@@ -84,10 +85,14 @@ class SmallHandler(snitch.EventHandler):
 
 @snitch.register(DUMMY_EVENT_NO_BODY)
 class DummyNoBodyHandler(snitch.EventHandler):
-    def get_title(self) -> str | None:
+    def get_title(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> str | None:
         return None
 
-    def get_text(self) -> str | None:
+    def get_text(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> str | None:
         return None
 
 
@@ -149,3 +154,12 @@ class OtherDynamicSpamHandler(snitch.EventHandler):
 
     def method_dynamic_cool_down_time(self, receiver: models.Model):
         return 5
+
+
+@snitch.register(LOCALIZED_EVENT)
+class LocalizedHandler(snitch.EventHandler):
+    notification_backends = [PushNotificationBackend]
+    use_localization_keys = True
+
+    def audience(self):
+        return get_user_model().objects.all()

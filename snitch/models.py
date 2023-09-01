@@ -16,7 +16,7 @@ from snitch.helpers import receiver_content_type_choices
 from snitch.managers import NotificationQuerySet
 from snitch.settings import NOTIFICATION_EAGER
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from snitch import EventHandler
     from snitch.backends import AbstractBackend
 
@@ -41,7 +41,7 @@ class EventType(models.Model):
 
 
 class Event(TimeStampedModel):
-    """A 'event' is generated when an 'actor' performs 'verb', involving 'action',
+    """An 'event' is generated when an 'actor' performs 'verb', involving 'action',
     in the 'target'.
 
      It could be:
@@ -97,8 +97,7 @@ class Event(TimeStampedModel):
         verbose_name_plural = _("events")
 
     def __str__(self) -> str:
-        handler = self.handler()
-        return handler.get_text() or "-"
+        return str(self.handler())
 
     def handler(
         self, notification: "AbstractNotification | None" = None

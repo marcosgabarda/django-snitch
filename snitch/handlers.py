@@ -15,7 +15,7 @@ from snitch.helpers import (
 )
 from snitch.tasks import create_notification_task
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from django.contrib.auth.models import AbstractBaseUser
 
     from snitch.backends import AbstractBackend
@@ -26,20 +26,28 @@ if TYPE_CHECKING:
 class EventHandler:
     """Base event backend to generic even types."""
 
+    # Generic
     ephemeral: bool = False
     dispatch_config: dict = {"args": ("actor", "trigger", "target")}
+    title: str | None = None
+    text: str | None = None
+    delay: int = 0
+    notification_creation_async: bool = False
+    notification_backends: list[Type["AbstractBackend"]] = []
+
+    # Cool down
+    cool_down_manager_class: Type["AbstractCoolDownManager"] | None = None
+
+    # Email backend
+    template_email_async: bool = False
+    template_email_kwargs: dict = {}
+
+    # Push notification backend
     action_attribute: str = "actor"
     action_type: str | None = None
     action_id: str | None = None
     click_action: str | None = None
-    title: str | None = None
-    text: str | None = None
-    delay: int = 0
-    template_email_async: bool = False
-    notification_creation_async: bool = False
-
-    notification_backends: list[Type["AbstractBackend"]] = []
-    cool_down_manager_class: Type["AbstractCoolDownManager"] | None = None
+    use_localization_keys: bool = False
 
     @classmethod
     def extract_actor_trigger_target(cls, method: str, *args, **kwargs):
@@ -61,6 +69,13 @@ class EventHandler:
             self.cool_down_manager_class(event_handler=self)
             if self.cool_down_manager_class
             else None
+        )
+
+    def __str__(self) -> str:
+        return (
+            self.get_text() or self.get_text_localization_key()
+            if self.use_localization_keys
+            else "-"
         )
 
     def _default_dynamic_text(self) -> str:
@@ -88,13 +103,47 @@ class EventHandler:
             return self.cool_down_manager.should_send(receiver=receiver)
         return True
 
-    def get_text(self) -> str | None:
+    def get_text(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> str | None:
         """Override to handle different human readable implementations."""
+        if self.use_localization_keys:
+            return None
         return self.text or self._default_dynamic_text()
 
-    def get_title(self) -> str | None:
+    def get_title(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> str | None:
         """Gets the title for the event. To be hooked."""
+        if self.use_localization_keys:
+            return None
         return self.title
+
+    def get_title_localization_key(
+        self, receivers: "models.QuerySet | models.Model | None"
+    ) -> str:
+        """Use by default the verb as localization key, replacing spaces and adding
+        the suffix '_title'."""
+        return f'{self.event.verb.replace(" ", "_")}_title'
+
+    def get_title_localization_args(
+        self, receivers: "models.QuerySet | models.Model | None"
+    ) -> list:
+        """By default, no arguments for localization."""
+        return []
+
+    def get_text_localization_key(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> str:
+        """Use by default the verb as localization key, replacing spaces and adding
+        the suffix '_texts'."""
+        return f'{self.event.verb.replace(" ", "_")}_text'
+
+    def get_text_localization_args(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> list:
+        """By default, no arguments for localization."""
+        return []
 
     def get_action_type(self) -> str | None:
         """Gets the action type depending on the verb. The actor by default, since
@@ -134,7 +183,9 @@ class EventHandler:
         """
         return settings.LANGUAGE_CODE
 
-    def get_extra_data(self) -> dict:
+    def get_extra_data(
+        self, receivers: "models.QuerySet | models.Model | None" = None
+    ) -> dict:
         """Adds extra meta data to the backend."""
         return {}
 

@@ -20,16 +20,16 @@ notification will be sent to a user in a time period.
         cool_down_time = 5  # In seconds
         notification_backends = [PushNotificationBackend]
 
-It uses `Django’s cache framework <https://docs.djangoproject.com/en/4.0/topics/cache/#the-low-level-cache-api>`_ 
-to handle the count of how many notifications are sent to a user. You can configure 
-
 
 ``cool_down_manager_class``
     Default: ``None```
 
     Indicates the class that should be used to handle the cool down. It is set to 
     ``None`` by default, and you should specify the class to use this function. 
+    
     Django-snitch comes with the class ``snitch.CoolDownManager`` that can be used.
+    It uses `Django’s cache framework <https://docs.djangoproject.com/en/4.0/topics/cache/#the-low-level-cache-api>`_ 
+    to handle the count of how many notifications are sent to a user.
 
 ``cool_down_attempts``
     Default: ``1``

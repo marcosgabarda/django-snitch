@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable
 from django.core.cache import caches
 from django.db import models
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from snitch.handlers import EventHandler
 
 

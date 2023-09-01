@@ -5,7 +5,7 @@ Getting Started
 Registering events handlers
 ---------------------------
 
-Django-snitch uses a system similar to django admin to register event handlers with
+Django-snitch uses a system similar to Django admin to register event handlers with
 events. For doing that, first you need to create an ``events.py`` file in your
 Django app.
 
