@@ -8,12 +8,15 @@ Events
 An 'event' is generated when an 'actor' performs 'verb', involving 'action',
 in the 'target'.
 
-    It could be:
+It could be
+
+.. code-block::
+
     <actor> <verb>
     <actor> <verb> <target>
     <actor> <verb> <trigger> <target>
 
-If is inspired in the `Atom Activity Streams<http://activitystrea.ms/specs/atom/1.0/>`_.
+If is inspired in the `Atom Activity Streams <http://activitystrea.ms/specs/atom/1.0/>`_.
 
 Event Handler Configuration
 ---------------------------
