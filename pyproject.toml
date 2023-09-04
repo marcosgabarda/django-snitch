@@ -8,9 +8,9 @@ license = "MIT"
 homepage = "https://github.com/marcosgabarda/django-snitch"
 packages = [{ include = "snitch" }]
 classifiers = [
-    "Environment :: Web Environment",
-    "Framework :: Django",
-    "License :: OSI Approved :: MIT License",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "License :: OSI Approved :: MIT License",
 ]
 
 [tool.poetry.dependencies]

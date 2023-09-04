@@ -3,7 +3,7 @@
 History
 -------
 
-3.2.0 (2023-08-31)
+3.2.0 (2023-09-04)
 ++++++++++++++++++
 
 * Feat: Now the cool down manager is not set by default, you should define the manager class.
