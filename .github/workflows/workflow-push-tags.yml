@@ -1,0 +1,29 @@
+name: Workflow - Push tags
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  lint_and_test:
+    uses: ./.github/workflows/job-lint-test.yml
+    with:
+      project: snitch
+
+  release_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.git_tags.outputs.version }}
+    steps:
+      - id: git_tags
+        run: echo "version=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
+
+  build_and_publish:
+    needs: [lint_and_test, release_version]
+    uses: ./.github/workflows/job-build-publish.yml
+    with:
+      project: snitch
+    secrets:
+      PYPI_API_KEY: ${{ secrets.PYPI_API_KEY }}
+

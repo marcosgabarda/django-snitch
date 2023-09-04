@@ -1,0 +1,29 @@
+name: Job - Build and publish
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        required: true
+        type: string
+    secrets:
+      PYPI_API_KEY:
+        required: true
+        description: "API key to upload the package to PyPI."
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "poetry"
+      - name: Install poetry
+        run: curl -sSL https://install.python-poetry.org | python -
+      - name: Config poetry
+        run: poetry config pypi-token.pypi "${{ secrets.PYPI_API_KEY }}"
+      - name: Publish package
+        run: poetry publish --build
